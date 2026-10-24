@@ -1,23 +1,32 @@
 <!--
 Sync Impact Report
-- Version: 1.0.0 (letzte beschlossene Fassung im Git-Verlauf; Arbeitsdatei war Vorlage) -> 1.1.0
-- Geänderte Prinzipien: I. Lokal und ohne eigenen Server -> I. Native Android-App und
-  Offline-Nutzung; II. Datenschutz und sichere Zugangsdaten -> II. Schutz von Familien-
-  und Zugangsdaten; III. Lesender und nachvollziehbarer Registerabgleich ->
-  III. Lesender und robuster Registerzugriff; IV. Ehrliche und nützliche
-  Benachrichtigungen -> IV. Verlässliche Daten und ehrlicher Abgleichstatus;
-  V. Kleine, überprüfbare Features -> V. Fachliche Treue und Verifikation
-- Neue Abschnitte: Android- und Produktgrenzen; Entwicklungsablauf und Qualitätsnachweise
-- Entfernte Abschnitte: keine (nur Vorlagenplatzhalter ersetzt)
-- Offene TODOs: keine
+- Version: 1.1.0 -> 2.0.0
+- Begründung: inkompatible Neudefinition der bisherigen Android-Plattformbindung;
+  React Native, Expo und TypeScript sowie Android und iOS sind verbindlich.
+- Geänderte Prinzipien:
+  I. Native Android-App und Offline-Nutzung -> I. Android und iOS mit Offline-Nutzung
+  II. Schutz von Familien- und Zugangsdaten (Sicherheit für beide Plattformen)
+  IV. Verlässliche Daten und ehrlicher Abgleichstatus (Hintergrundarbeit beider Plattformen)
+  V. Fachliche Treue und Verifikation (plattformübergreifender Geltungsbereich)
+- Geänderte Abschnitte: Android- und Produktgrenzen -> Plattform-, Technologie- und
+  Produktgrenzen; Entwicklungsablauf und Qualitätsnachweise
+- Neue Abschnitte: keine
+- Entfernte Abschnitte: keine
+- Offene TODOs: keine Platzhalter. Bestehende Feature-Artefakte müssen vor Umsetzung
+  auf die neue Plattform- und Technologiebindung geprüft werden.
+- Dieser Prüfkommentar ist vor dem Commit der Verfassungsänderung zu entfernen.
 -->
 # Family Hub App Constitution
 
 ## Core Principles
 
-### I. Native Android-App und Offline-Nutzung
+### I. Android und iOS mit Offline-Nutzung
 
-Family Hub MUST als native Android-App ohne eigenen Family-Hub-Server nutzbar sein.
+Family Hub MUST Android und iOS unterstützen und ohne eigenen Family-Hub-Server
+nutzbar sein. Die App MUST mit React Native, Expo und TypeScript entwickelt werden.
+Eigene Development Builds für beide Plattformen MUST die Entwicklungsbasis sein.
+Expo Go darf optional für Prototypen verwendet werden; verbindliche Nachweise für
+native Funktionen MUST mit eigenen Builds auf Android und iOS erfolgen.
 Gespeicherte Aufgaben, Termine und Mitteilungen MUST nach App-Neustart und ohne
 Internet lesbar bleiben. Netzwerkzugriffe MUST die lokale Anzeige ergänzen, nicht
 blockieren. Änderungen am lokalen Datenschema MUST nachvollziehbare Migrationen
@@ -27,8 +36,13 @@ fehlender Verbindung zum Schulregister brauchbar.
 ### II. Schutz von Familien- und Zugangsdaten
 
 Registerzugangsdaten MUST auf dem Gerät geschützt gespeichert werden; die
-Schlüsselverwaltung MUST Android Keystore oder eine gleichwertige Plattformfunktion
-verwenden. Passwörter, Sitzungscookies und rohe Antwortinhalte dürfen nicht in
+Speicherung und Schlüsselverwaltung MUST unter Android durch Android Keystore
+und unter iOS durch Keychain beziehungsweise deren geschützte Plattformfunktionen
+abgesichert sein. Zugangsdaten dürfen nicht in ungeschütztem allgemeinem
+App-Speicher liegen. Backup-, Wiederherstellungs- und Löschverhalten der verwendeten
+Speicherlösung MUST für beide Plattformen festgelegt und geprüft werden. Ein
+fehlgeschlagener Zugriff auf den sicheren Speicher MUST erkennbar behandelt werden;
+ein Rückfall auf ungeschützte Speicherung ist unzulässig. Passwörter, Sitzungscookies und rohe Antwortinhalte dürfen nicht in
 Logs, Absturzberichte, Benachrichtigungen, Quellcode oder ungeschützte Sicherungen
 gelangen. Personenbezogene Schul- und Familiendaten MUST auf das für die Funktion
 nötige Maß begrenzt bleiben. Das Löschen eines Registerkontos MUST
@@ -58,15 +72,20 @@ MUST den letzten erfolgreichen Datenstand erhalten und dessen Alter beziehungswe
 den letzten erfolgreichen Abgleich sichtbar machen. Die App MUST zwischen
 gespeicherten, aktuellen und fehlgeschlagenen Abgleichen unterscheiden;
 Benachrichtigungen dürfen veraltete Daten nicht als frisch ausgeben. Geplante
-Hintergrundarbeit MUST Androids Ausführungsbedingungen respektieren und darf keine
-minutengenaue Zustellung versprechen. Die tägliche Übersicht MUST als lokale
+Hintergrundarbeit MUST die Ausführungsbedingungen von Android und iOS
+respektieren. Spezifikationen MUST für beide Plattformen Berechtigungen,
+Energiesparzustände, eingeschränkte oder ausbleibende Hintergrundausführung sowie
+beendete Apps berücksichtigen. Die App darf weder feste Ausführungsintervalle noch
+minutengenaue Zustellung versprechen. Ein Abgleich im Vordergrund MUST unabhängig
+von der Verfügbarkeit der Hintergrundarbeit möglich sein; ausgefallene Läufe
+dürfen weder Datenverlust noch doppelte Einträge verursachen. Die tägliche Übersicht MUST als lokale
 Benachrichtigung ohne externen Push-Dienst funktionieren; bei verweigerter
 Benachrichtigungsberechtigung MUST die Übersicht in der App nutzbar bleiben. So
 können Familien die Übersicht richtig einordnen.
 
 ### V. Fachliche Treue und Verifikation
 
-Die Android-App MUST die fachlichen Regeln des bestehenden Family Hub für
+Die App MUST die fachlichen Regeln des bestehenden Family Hub für
 Klassifizierung, Priorisierung, Gruppierung und Mitteilungstexte übernehmen.
 Schularbeiten, Tests und Prüfungen haben hohe, Hausaufgaben mittlere und sonstige
 Termine normale Priorität. Änderungen an diesen Regeln MUST anhand anonymisierter
@@ -76,10 +95,12 @@ der Kontoinhaber gegen echte Antworten geprüft werden; nicht unterstützte Fäl
 MUST ausdrücklich sichtbar bleiben. Damit bleiben Aussagen der App fachlich
 nachvollziehbar.
 
-## Android- und Produktgrenzen
+## Plattform-, Technologie- und Produktgrenzen
 
 - Der erste nutzbare Release umfasst die Features F01 bis F07 aus
-  `docs/android-feature-list.md`. Spätere Features MUST separat spezifiziert
+  `docs/android-feature-list.md`; deren fachlicher Umfang gilt für Android und iOS.
+  Android-spezifische technische Vorgaben darin MUST vor Umsetzung mit dieser
+  Constitution abgeglichen werden. Spätere Features MUST separat spezifiziert
   werden; die Feature-Liste bestimmt die Reihenfolge, diese Constitution die
   übergreifenden Regeln.
 - Die App MUST ohne Flask-Oberfläche, Docker-Betrieb, eigenen Webserver,
@@ -88,11 +109,12 @@ nachvollziehbar.
   eigene Spezifikation mit Datenschutz- und Sicherheitskonzept.
 - Bedienflächen MUST den zugeordneten Kindern, den Datenstand und Fehler in
   verständlicher Sprache zeigen. Texte und Bedienelemente MUST mit skalierter
-  Android-Schrift lesbar und zugänglich bleiben.
+  Systemschrift auf Android und iOS lesbar und zugänglich bleiben.
 - Export, Import und Gerätewechsel dürfen erst nach einer eigenen Spezifikation
   umgesetzt werden, die Schutz der Zugangsdaten und Wiederherstellbarkeit klärt.
-- Die App MUST nur die für ihre Funktionen benötigten Android-Berechtigungen
-  anfordern. Benachrichtigungsberechtigungen MUST verständlich erklärt werden.
+- Die App MUST nur die für ihre Funktionen benötigten Berechtigungen auf Android und iOS
+  anfordern. Benachrichtigungsberechtigungen MUST auf beiden Plattformen
+  verständlich erklärt und Ablehnungen ohne Funktionsabbruch behandelt werden.
 
 ## Entwicklungsablauf und Qualitätsnachweise
 
@@ -106,9 +128,13 @@ nachvollziehbar.
   anonymisierten Antworten oder Test-Doubles ohne echte Zugangsdaten laufen.
 - Die Verifikation mit echten Konten MUST auf das Nötige begrenzt sein; Zugangsdaten
   und rohe personenbezogene Antworten dürfen nicht in das Repository gelangen.
-  Ergebnisse und verbleibende Einschränkungen MUST vor einem Release dokumentiert
+  Ergebnisse und verbleibende Einschränkungen MUST für Android und iOS vor einem Release dokumentiert
   werden.
-- Ein Release MUST ohne Family-Hub-Server starten, gespeicherte Daten offline
+- Die sichere Speicherung einschließlich Kontolöschung, lokale Benachrichtigungen,
+  verweigerte Berechtigungen und eingeschränkte Hintergrundarbeit MUST mit eigenen
+  Builds auf Android und iOS geprüft werden. Expo Go allein erfüllt diese
+  Qualitätsnachweise nicht.
+- Ein Release MUST auf Android und iOS ohne Family-Hub-Server starten, gespeicherte Daten offline
   anzeigen und verständliche Zustände für fehlendes Netz, ungültige Anmeldung und
   veraltete Daten bieten.
 
@@ -128,4 +154,4 @@ Vorgaben und PATCH für redaktionelle Klarstellungen ohne neue Pflichten. Das
 übernimmt den fachlichen Kontext aus `docs/android-feature-list.md` und dem
 bestehenden Family-Hub-Projekt.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-24 | **Last Amended**: 2026-10-24
+**Version**: 2.0.0 | **Ratified**: 2026-10-24 | **Last Amended**: 2026-10-24
