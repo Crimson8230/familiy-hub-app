@@ -1,99 +1,131 @@
+<!--
+Sync Impact Report
+- Version: 1.0.0 (letzte beschlossene Fassung im Git-Verlauf; Arbeitsdatei war Vorlage) -> 1.1.0
+- Geänderte Prinzipien: I. Lokal und ohne eigenen Server -> I. Native Android-App und
+  Offline-Nutzung; II. Datenschutz und sichere Zugangsdaten -> II. Schutz von Familien-
+  und Zugangsdaten; III. Lesender und nachvollziehbarer Registerabgleich ->
+  III. Lesender und robuster Registerzugriff; IV. Ehrliche und nützliche
+  Benachrichtigungen -> IV. Verlässliche Daten und ehrlicher Abgleichstatus;
+  V. Kleine, überprüfbare Features -> V. Fachliche Treue und Verifikation
+- Neue Abschnitte: Android- und Produktgrenzen; Entwicklungsablauf und Qualitätsnachweise
+- Entfernte Abschnitte: keine (nur Vorlagenplatzhalter ersetzt)
+- Offene TODOs: keine
+-->
 # Family Hub App Constitution
 
-## Zweck und Geltungsbereich
+## Core Principles
 
-Family Hub App ist eine eigenständige Android-App für die private Übersicht über
-Aufgaben, Termine und Mitteilungen der Grundschule und Mittelschule St. Martin. Sie
-setzt fachlich auf dem bestehenden Family-Hub-Projekt auf. Diese Constitution gilt
-für alle Android-Spezifikationen, Pläne, Implementierungen und Releases.
+### I. Native Android-App und Offline-Nutzung
 
-## Grundsätze
+Family Hub MUST als native Android-App ohne eigenen Family-Hub-Server nutzbar sein.
+Gespeicherte Aufgaben, Termine und Mitteilungen MUST nach App-Neustart und ohne
+Internet lesbar bleiben. Netzwerkzugriffe MUST die lokale Anzeige ergänzen, nicht
+blockieren. Änderungen am lokalen Datenschema MUST nachvollziehbare Migrationen
+haben, die bestehende Familiendaten erhalten. So bleibt die Übersicht auch bei
+fehlender Verbindung zum Schulregister brauchbar.
 
-### I. Lokal und ohne eigenen Server
+### II. Schutz von Familien- und Zugangsdaten
 
-- Die Kernfunktionen MÜSSEN ohne Family-Hub-Server, Cloud-Datenbank, Aruba-Hosting
-  und Google-Konto nutzbar sein.
-- Registerdaten MÜSSEN auf dem Gerät gespeichert und ohne Netzverbindung lesbar sein.
-- Netzwerkzugriffe DÜRFEN für den ausdrücklich konfigurierten Registerabgleich
-  erfolgen. Ein Ausfall des Registers DARF vorhandene Daten nicht entfernen.
-- Die App DARF keine Daten zwischen Geräten synchronisieren, solange dafür nicht
-  eine eigene, ausdrücklich spezifizierte Funktion mit Daten- und
-  Sicherheitskonzept beschlossen wurde.
+Registerzugangsdaten MUST auf dem Gerät geschützt gespeichert werden; die
+Schlüsselverwaltung MUST Android Keystore oder eine gleichwertige Plattformfunktion
+verwenden. Passwörter, Sitzungscookies und rohe Antwortinhalte dürfen nicht in
+Logs, Absturzberichte, Benachrichtigungen, Quellcode oder ungeschützte Sicherungen
+gelangen. Personenbezogene Schul- und Familiendaten MUST auf das für die Funktion
+nötige Maß begrenzt bleiben. Das Löschen eines Registerkontos MUST
+seine Zugangsdaten und zugehörigen lokalen Einträge entfernen. Benachrichtigungen
+auf dem Sperrbildschirm MUST datensparsam sein; eine verweigerte Berechtigung MUST
+respektiert werden. Echte Registerdaten dürfen nur mit Zustimmung der Kontoinhaber
+zur Prüfung verwendet werden; dauerhaft übernommene Beispiele MUST anonymisiert
+sein. Diese Regeln schützen besonders die Daten von Kindern.
 
-### II. Datenschutz und sichere Zugangsdaten
+### III. Lesender und robuster Registerzugriff
 
-- Register-Zugangsdaten MÜSSEN auf dem Gerät geschützt gespeichert werden; die
-  Schlüsselverwaltung MUSS Android Keystore oder eine gleichwertige
-  Plattformfunktion verwenden.
-- Passwörter, Sitzungscookies und Antwortinhalte DÜRFEN nicht in Logs,
-  Absturzberichte, Benachrichtigungen oder Quellcode gelangen.
-- Backups und Exporte MÜSSEN ausdrücklich regeln, ob Zugangsdaten enthalten sind.
-  Eine Wiederherstellung DARF keine ungeschützten Zugangsdaten erzeugen.
-- Benachrichtigungen MÜSSEN eine datensparsame Sperrbildschirm-Darstellung
-  ermöglichen. Nicht benötigte Android-Berechtigungen DÜRFEN nicht angefordert werden.
-- Das Entfernen eines Registerkontos MUSS dessen Zugangsdaten und zugehörige
-  lokale Einträge löschen.
+Die App MUST das Digitale Register ausschließlich lesend verwenden und darf dort
+keine Aufgaben, Termine oder Mitteilungen verändern. Antworten der Grundschule und
+Mittelschule St. Martin MUST vor dem Speichern validiert und normalisiert werden.
+Nicht unterstützte Antwortformate, Anmeldefehler, Netzfehler und ein verlangter
+zweiter Faktor MUST als erkennbare Fehler behandelt werden; die App darf daraus
+keine scheinbar erfolgreichen Ergebnisse ableiten. Da die Registerendpunkte
+inoffiziell und veränderlich sind, MUST der Zugriff so gekapselt sein, dass
+Formatänderungen ohne Eingriff in die lokale Darstellung bearbeitet werden können.
+`register.py`, `classification.py`, `message_text.py` und `grouping.py` im
+bestehenden Family Hub sind dafür die fachliche Referenz der ersten Version.
 
-### III. Lesender und nachvollziehbarer Registerabgleich
+### IV. Verlässliche Daten und ehrlicher Abgleichstatus
 
-- Die App DARF im Digitalen Register nur lesen; sie DARF keine Aufgaben abhaken,
-  Nachrichten verändern oder sonstige Schulserver-Daten schreiben.
-- Die bestehende Implementierung in `register.py`, `classification.py`,
-  `message_text.py` und `grouping.py` ist die fachliche Referenz für die erste
-  Android-Version. Abweichungen MÜSSEN im jeweiligen Feature begründet werden.
-- Der Abgleich MUSS Einträge pro Registerkonto eindeutig zuordnen und
-  wiederholbar verarbeiten, ohne Duplikate zu erzeugen.
-- Fehler, unerwartete Antworten und eine verlangte Zwei-Faktor-Anmeldung
-  MÜSSEN sichtbar und verständlich gemeldet werden. Ein fehlgeschlagener
-  Abgleich DARF den letzten erfolgreichen Stand nicht als aktuell ausgeben.
-- Die Register-Endpunkte sind inoffiziell und noch nicht mit echten Konten
-  verifiziert. Anpassungen an das reale Antwortformat MÜSSEN mit anonymisierten
-  Beispielen und gezielten Tests belegt werden.
+Ein wiederholter Abgleich MUST ohne doppelte Einträge möglich sein. Ein Fehler
+MUST den letzten erfolgreichen Datenstand erhalten und dessen Alter beziehungsweise
+den letzten erfolgreichen Abgleich sichtbar machen. Die App MUST zwischen
+gespeicherten, aktuellen und fehlgeschlagenen Abgleichen unterscheiden;
+Benachrichtigungen dürfen veraltete Daten nicht als frisch ausgeben. Geplante
+Hintergrundarbeit MUST Androids Ausführungsbedingungen respektieren und darf keine
+minutengenaue Zustellung versprechen. Die tägliche Übersicht MUST als lokale
+Benachrichtigung ohne externen Push-Dienst funktionieren; bei verweigerter
+Benachrichtigungsberechtigung MUST die Übersicht in der App nutzbar bleiben. So
+können Familien die Übersicht richtig einordnen.
 
-### IV. Ehrliche und nützliche Benachrichtigungen
+### V. Fachliche Treue und Verifikation
 
-- Die tägliche Übersicht MUSS als lokale Android-Benachrichtigung funktionieren;
-  ein externer Push-Dienst ist dafür keine Voraussetzung.
-- Die App MUSS den Zeitpunkt des letzten erfolgreichen Abgleichs anzeigen.
-  Beruht eine Benachrichtigung auf älteren Daten oder scheitert der Abgleich,
-  MUSS sie das erkennen lassen.
-- Die gewünschte Uhrzeit ist eine Präferenz, keine zugesicherte minutengenaue
-  Ausführung. Die App MUSS Android-Beschränkungen für Hintergrundarbeit und
-  Benachrichtigungsberechtigungen respektieren.
-- Bei deaktivierten Benachrichtigungen MUSS die Übersicht in der App weiterhin
-  vollständig nutzbar sein.
+Die Android-App MUST die fachlichen Regeln des bestehenden Family Hub für
+Klassifizierung, Priorisierung, Gruppierung und Mitteilungstexte übernehmen.
+Schularbeiten, Tests und Prüfungen haben hohe, Hausaufgaben mittlere und sonstige
+Termine normale Priorität. Änderungen an diesen Regeln MUST anhand anonymisierter
+Beispiele mit dem bestehenden Verhalten verglichen und bewusst begründet werden.
+Parser und Darstellung für beide Schulen MUST vor dem ersten Release mit Zustimmung
+der Kontoinhaber gegen echte Antworten geprüft werden; nicht unterstützte Fälle
+MUST ausdrücklich sichtbar bleiben. Damit bleiben Aussagen der App fachlich
+nachvollziehbar.
 
-### V. Kleine, überprüfbare Features
+## Android- und Produktgrenzen
 
-- Jedes Feature MUSS einen eigenständig prüfbaren Nutzwert, klare
-  Akzeptanzkriterien und definierte Fehlerfälle haben.
-- Für Register-Normalisierung, Priorisierung, lokale Datenmigration und
-  Benachrichtigungsentscheidung MÜSSEN aussagekräftige automatisierte Tests
-  vorhanden sein. Tests DÜRFEN keine echten Schul-Zugangsdaten verwenden.
-- Netzwerkabhängige Tests MÜSSEN mit anonymisierten Beispielantworten oder
-  Test-Doubles laufen. Änderungen am Registerformat MÜSSEN durch solche Tests
-  nachvollziehbar sein.
-- Release-Voraussetzung sind ein geprüfter Offline-Fall, ein fehlgeschlagener
-  Abgleich, verweigerte Benachrichtigungsberechtigung und eine Neuinstallation
-  beziehungsweise Wiederherstellung ohne Datenverlust oder Zugangsdatenleck.
+- Der erste nutzbare Release umfasst die Features F01 bis F07 aus
+  `docs/android-feature-list.md`. Spätere Features MUST separat spezifiziert
+  werden; die Feature-Liste bestimmt die Reihenfolge, diese Constitution die
+  übergreifenden Regeln.
+- Die App MUST ohne Flask-Oberfläche, Docker-Betrieb, eigenen Webserver,
+  Google-Login und E-Mail-Bericht funktionieren. Eine Synchronisierung mehrerer
+  Geräte gehört nicht zum ersten Release und braucht vor einer Umsetzung eine
+  eigene Spezifikation mit Datenschutz- und Sicherheitskonzept.
+- Bedienflächen MUST den zugeordneten Kindern, den Datenstand und Fehler in
+  verständlicher Sprache zeigen. Texte und Bedienelemente MUST mit skalierter
+  Android-Schrift lesbar und zugänglich bleiben.
+- Export, Import und Gerätewechsel dürfen erst nach einer eigenen Spezifikation
+  umgesetzt werden, die Schutz der Zugangsdaten und Wiederherstellbarkeit klärt.
+- Die App MUST nur die für ihre Funktionen benötigten Android-Berechtigungen
+  anfordern. Benachrichtigungsberechtigungen MUST verständlich erklärt werden.
 
-## Produktgrenzen der ersten Version
+## Entwicklungsablauf und Qualitätsnachweise
 
-- Die erste Version ist für Android und einzelne Geräte ausgelegt. Jedes Gerät
-  hat seinen eigenen Datenstand und seine eigenen Register-Zugangsdaten.
-- Google-Login, gemeinsam synchronisierte Familienkonten, Webserver und
-  automatischer E-Mail-Versand gehören nicht zum ersten Release.
-- Die App übernimmt keine Zuständigkeit für das Schulregister und verspricht
-  keinen garantierten Zustellzeitpunkt für Benachrichtigungen.
+- Jedes Feature MUST als eigene Speckit-Spezifikation mit überprüfbaren
+  Akzeptanzkriterien geplant werden. Plan und Tasks MUST die betroffenen
+  Constitution-Prinzipien benennen und Abweichungen begründen.
+- Änderungen an Speicherung, Migrationen, Registerparsern, Klassifizierung und
+  Abgleichlogik MUST durch passende automatisierte Tests belegt werden. Tests
+  MUST Fehlerfälle, verweigerte Benachrichtigungsberechtigung und Datenbestand
+  nach einem fehlgeschlagenen Abgleich prüfen. Netzwerkabhängige Tests MUST mit
+  anonymisierten Antworten oder Test-Doubles ohne echte Zugangsdaten laufen.
+- Die Verifikation mit echten Konten MUST auf das Nötige begrenzt sein; Zugangsdaten
+  und rohe personenbezogene Antworten dürfen nicht in das Repository gelangen.
+  Ergebnisse und verbleibende Einschränkungen MUST vor einem Release dokumentiert
+  werden.
+- Ein Release MUST ohne Family-Hub-Server starten, gespeicherte Daten offline
+  anzeigen und verständliche Zustände für fehlendes Netz, ungültige Anmeldung und
+  veraltete Daten bieten.
 
 ## Governance
 
-- Die Constitution hat Vorrang vor Feature-Spezifikationen und
-  Implementierungsplänen. Ein Konflikt MUSS vor der Implementierung geklärt
-  werden.
-- Änderungen an Grundsätzen oder Produktgrenzen MÜSSEN mit Begründung,
-  Auswirkung auf bestehende Features und Versionsanpassung dokumentiert werden.
-- Versionierung: MAJOR für widersprechende oder entfernte Grundsätze, MINOR
-  für neue Grundsätze oder Produktgrenzen, PATCH für Klarstellungen.
+Diese Constitution gilt für alle Speckit-Artefakte und Implementierungen der
+Family Hub App. Änderungen MUST als Amendment in dieser Datei erfolgen und
+Prinzip, Begründung, betroffene bestehende Features und nötige Anpassungen der
+Spezifikationen benennen. Vor einer Änderung oder Freigabe MUST die Einhaltung
+der betroffenen Prinzipien geprüft werden; Ausnahmen brauchen eine dokumentierte
+Begründung und einen Plan zur Auflösung.
 
-**Version**: 1.0.0 | **Beschlossen**: 2026-10-24 | **Zuletzt geändert**: 2026-10-24
+Die Version folgt Semantic Versioning: MAJOR für inkompatible Änderungen oder
+Entfernung von Grundsätzen, MINOR für neue Grundsätze oder wesentlich erweiterte
+Vorgaben und PATCH für redaktionelle Klarstellungen ohne neue Pflichten. Das
+Änderungsdatum MUST bei jedem Amendment aktualisiert werden. Die erste Fassung
+übernimmt den fachlichen Kontext aus `docs/android-feature-list.md` und dem
+bestehenden Family-Hub-Projekt.
+
+**Version**: 1.1.0 | **Ratified**: 2026-10-24 | **Last Amended**: 2026-10-24

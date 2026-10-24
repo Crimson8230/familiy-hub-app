@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Family Hub</string>
+    <string name="accounts_title">Schulkonten</string>
+    <string name="add_account">Schulkonto hinzufügen</string>
+    <string name="child_name">Kind</string>
+    <string name="school">Schule</string>
+    <string name="username">Benutzername</string>
+    <string name="password">Passwort</string>
+    <string name="primary_school">Grundschule St. Martin</string>
+    <string name="middle_school">Mittelschule St. Martin</string>
+    <string name="save">Speichern</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="delete">Löschen</string>
+    <string name="delete_account">Schulkonto löschen</string>
+    <string name="delete_account_for">Schulkonto für %1$s löschen</string>
+    <string name="required_field">Bitte ausfüllen.</string>
+    <string name="duplicate_account">Für dieses Kind ist schon ein Schulkonto gespeichert.</string>
+    <string name="save_failed">Das Schulkonto konnte nicht gespeichert werden. Bitte erneut versuchen.</string>
+    <string name="delete_failed">Das Schulkonto konnte nicht gelöscht werden. Bitte erneut versuchen.</string>
+    <string name="read_failed">Die gespeicherten Schulkonten konnten nicht geladen werden.</string>
+    <string name="retry">Erneut versuchen</string>
+    <string name="empty_accounts">Noch keine Schulkonten eingerichtet.</string>
+    <string name="empty_accounts_hint">Füge für jedes Kind ein Schulkonto hinzu.</string>
+    <string name="delete_confirmation">Schulkonto für %1$s (%2$s) löschen? Zugangsdaten und zugehörige lokale Daten werden entfernt.</string>
+    <string name="back">Zurück</string>
+</resources>
