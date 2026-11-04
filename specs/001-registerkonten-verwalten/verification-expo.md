@@ -652,3 +652,29 @@ Stand vor dieser Nutzerentscheidung.
   `mobile/tests/artifacts/` and are not versioned or used as sanitized evidence.
   The evidence JSON above records only the relevant result and permission code.
   T032 remains open for a successful complete Android flow and iOS Preview run.
+
+### Xiaomi launch-control diagnosis after continuation (2026-11-04)
+
+- User authorized continuing after enabling USB-debugging security settings.
+  The next attempt initially stopped while reinstalling the Maestro driver with
+  `INSTALL_FAILED_USER_RESTRICTED`. Restored networking, prepared the driver online,
+  then used the documented Maestro 2.12.1 option `test --no-reinstall-driver` for
+  the offline flow. No application data was reset or account created.
+- The driver reached flow execution, but the launch/empty-state assertion failed.
+  Screenshots/hierarchy showed Android developer settings in the foreground.
+  Initial suspicion that manual device interaction caused this was not supported
+  by the subsequent diagnostic: filtered ActivityTaskManager logs explicitly show
+  a `com.familyhub.app/.MainActivity` launch request from `dev.mobile.maestro`
+  followed by `Abort background activity starts`. This is a distinct Xiaomi
+  restriction on the driver's ability to open another app, beyond input injection.
+- Direct `adb shell am start -W -n com.familyhub.app/.MainActivity` succeeded
+  while offline; a local screenshot confirmed the correct empty Preview UI and
+  `pidof` confirmed the process remained alive. The crash buffer contained no
+  crash record. This supports a test-launch-control restriction; it does not
+  establish a successful complete Maestro flow or prove the input permission fixed.
+- Asked for the Maestro application's permission to open windows from the
+  background. Instructions and reuse-driver guidance added to the Maestro README.
+  Wi-Fi/mobile data were both `1` before the attempts, both confirmed `0` during
+  the offline main flow, and enabled again for the diagnostic pause.
+  T032, downstream sequential gates and iOS Preview remain open. No additional
+  product changes or claims of completed account-creation acceptance.

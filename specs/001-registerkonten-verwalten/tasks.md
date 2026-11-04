@@ -449,3 +449,12 @@ Maestro bricht beim ersten Tippen mit fehlender `INJECT_EVENTS`-Berechtigung ab;
 noch keine Kontoanlage/Neustart-/Duplikatprüfung ausgeführt. Zusätzliche
 Xiaomi-Debugging-Freigabe angefragt, Netzwerkzustand anschließend wiederhergestellt.
 T032 bleibt offen; dieser Teilnachweis ersetzt den vollständigen Flow nicht.
+
+Weitere Wiederholung nach USB-Debugging-Freigabe: Maestro-Treiberinstallation
+zunächst erneut durch Installationsdialog blockiert, später mit aktiver
+Verbindung bis zum Flowstart erfolgreich. Beim Offline-Lauf mit
+`--no-reinstall-driver` blockiert Xiaomi den App-Start aus dem Hintergrund
+(`dev.mobile.maestro`, `Abort background activity starts`). Direkter ADB-Start
+zeigt weiterhin die leere Preview-App. Die zuvor vermutete Bedienung am Gerät
+ist damit nicht als Ursache belegt. Maestro-Hintergrundfenster-Freigabe angefragt;
+keine Kontoanlage/Neustart-/Duplikatabnahme, Netzwerkzustand wiederhergestellt.

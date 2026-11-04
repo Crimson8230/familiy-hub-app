@@ -20,6 +20,22 @@ zusätzlich durch die Unit-/nativen Tests geprüft; der UI-Lauf ersetzt diese ni
   Er führt weder `clearState` noch `clearKeychain` aus. Für Wiederholungen einen
   neuen isolierten Testbestand bereitstellen; niemals eine Bestands-App löschen.
 
+### Physische Xiaomi-Geräte
+
+Zusätzlich zu USB-Debugging können gerätespezifische Freigaben nötig sein:
+„Installieren über USB“ für Preview und Maestro-Testtreiber,
+„USB-Debugging (Sicherheitseinstellungen)“ für simulierte Eingaben und bei der
+App **Maestro** (`dev.mobile.maestro`) die Berechtigung zum Öffnen von Fenstern
+im Hintergrund. Fehlendes `INJECT_EVENTS` bzw. `Abort background activity starts`
+im Gerätelog kennzeichnen unterschiedliche Teststeuerungsprobleme.
+Ein erfolgreicher direkter ADB-Start ersetzt keinen erfolgreichen Maestro-Lauf.
+
+Installationsabfragen für den Testtreiber vor dem Offline-Lauf erledigen.
+Bei Wiederholungen mit derselben Maestro-Version kann `test --no-reinstall-driver`
+die vorhandenen Treiber wiederverwenden. Während des Flows das entsperrte Gerät
+liegen lassen. Änderungen an diesen zusätzlichen Freigaben nach dem Test nach
+Bedarf zurücknehmen; sie sind keine Berechtigungen der Family-Hub-App.
+
 ## Ausführung aus `mobile/`
 
 Android lokal bauen (Node 22, JDK und Android SDK erforderlich):
