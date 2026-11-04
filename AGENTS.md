@@ -33,3 +33,9 @@
   wenn dadurch das persönliche Handy angesprochen werden könnte.
 - Eine neu gebaute Testversion darf für manuelle Tests bereitgestellt werden;
   daraus folgt keine Freigabe für automatisierte Tests auf dem Handy.
+- Ausdrückliche Nutzer-Ausnahme vom 2026-11-04: Für die aktuelle Fortsetzung
+  der Android-Preview-Prüfung T032 ist das verbundene persönliche Smartphone
+  erneut für automatisierte Tests freigegeben. Bestehende Konten erhalten;
+  keine Datenlöschung daraus ableiten. Diese konkrete Freigabe hat Vorrang vor
+  der allgemeinen Einschränkung oben und hebt den Emulator-Standard für
+  spätere Features nicht auf.

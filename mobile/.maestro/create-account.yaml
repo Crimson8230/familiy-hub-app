@@ -1,16 +1,26 @@
-# Run only against a fresh preview installation on an isolated device.
+# Default: fresh preview on an isolated device. With explicit authorization,
+# REQUIRE_EMPTY=false and a new CHILD_PREFIX preserve an existing test inventory.
 # Stop Metro and disable device networking BEFORE invoking this flow.
 # Deliberately never clear app data or the iOS Keychain here.
 appId: com.familyhub.app
 name: Offline account creation, process restart and duplicate rejection
+env:
+  REQUIRE_EMPTY: ${REQUIRE_EMPTY || 'true'}
+  CHILD_PREFIX: ${CHILD_PREFIX || 'Offline Kind'}
 ---
 - launchApp
-- assertVisible: Noch keine Schulkonten gespeichert. Füge ein Schulkonto hinzu.
+- runFlow:
+    when:
+      true: ${REQUIRE_EMPTY === 'true'}
+    commands:
+      - assertVisible: Noch keine Schulkonten gespeichert. Füge ein Schulkonto hinzu.
+- assertVisible: Schulkonten
+- assertNotVisible: ${CHILD_PREFIX + ' 01'}
 - evalScript: ${output.number = 1}
 - repeat:
     times: 10
     commands:
-      - evalScript: "${output.child = 'Offline Kind ' + (output.number < 10 ? '0' : '') + output.number}"
+      - evalScript: "${output.child = CHILD_PREFIX + ' ' + (output.number < 10 ? '0' : '') + output.number}"
       - runFlow:
           file: helpers/fill-account.yaml
           env:
@@ -40,7 +50,7 @@ name: Offline account creation, process restart and duplicate rejection
 - runFlow:
     file: helpers/fill-account.yaml
     env:
-      CHILD: ' offline kind 01 '
+      CHILD: ${' ' + CHILD_PREFIX.toLowerCase() + ' 01 '}
       SCHOOL: mittelschule
 - tapOn:
     id: account-save
@@ -57,5 +67,5 @@ name: Offline account creation, process restart and duplicate rejection
     element:
       text: Schulkonten
     direction: UP
-- assertVisible: Offline Kind 01
-- assertNotVisible: offline kind 01
+- assertVisible: ${CHILD_PREFIX + ' 01'}
+- assertNotVisible: ${CHILD_PREFIX.toLowerCase() + ' 01'}

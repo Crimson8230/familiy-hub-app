@@ -497,3 +497,15 @@ vorhandenen API-37-Emulators erreichte keinen testbereiten ADB-Zustand und wurde
 beendet. Kein Test am persönlichen Handy ausgeführt. **T032 bleibt offen**, bis
 Android-Host-Emulator und iOS-Simulator tatsächlich erfolgreich geprüft sind;
 T033/T034 nicht vorgezogen. Details und Artefaktnachweise in verification-expo.md.
+
+### Erneute ausdrückliche Smartphone-Freigabe (2026-11-04)
+
+Nutzer hat die Verwendung des verbundenen Smartphones für die aktuelle
+T032-Fortsetzung erneut ausdrücklich beauftragt; Ausnahme in AGENTS.md erfasst.
+Vorhandene zehn synthetische Konten in der Preview-Übersicht geprüft.
+Kein Reset: Flow um expliziten neuen `CHILD_PREFIX` und opt-in
+`REQUIRE_EMPTY=false` ergänzt; Standard bleibt leerer Testbestand.
+Maestro-Syntaxprüfung bestanden. Beide benötigten offiziellen Testhelfer wurden
+bei der Installation mit `INSTALL_FAILED_USER_RESTRICTED` abgewiesen;
+Installationsbereitschaft am Telefon angefragt. Kein neuer UI-Test gestartet,
+keine Konten oder Netzwerkzustände verändert; T032 bleibt offen.

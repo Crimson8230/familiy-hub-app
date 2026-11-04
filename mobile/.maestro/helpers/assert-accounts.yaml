@@ -7,7 +7,7 @@ appId: com.familyhub.app
 - repeat:
     times: 10
     commands:
-      - evalScript: "${output.child = 'Offline Kind ' + (output.number < 10 ? '0' : '') + output.number}"
+      - evalScript: "${output.child = CHILD_PREFIX + ' ' + (output.number < 10 ? '0' : '') + output.number}"
       - scrollUntilVisible:
           element:
             text: Schulkonten

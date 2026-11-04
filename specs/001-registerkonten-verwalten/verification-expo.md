@@ -768,3 +768,24 @@ Stand vor dieser Nutzerentscheidung.
 - **T032 remains unchecked** for actual complete Android/iOS Preview execution.
   No downstream sequential gates advanced. Pending host-environment information
   does not authorize phone automation or imply successful runtime acceptance.
+
+### Renewed phone authorization and preserved test inventory (2026-11-04)
+
+- User explicitly authorized using the connected smartphone again for the current
+  T032 continuation. Recorded the narrow exception in AGENTS.md; the default
+  emulator-only wrapper remains unchanged. This is not a blanket authorization
+  for future features or deletion of existing data.
+- Direct preview launch and a local overview screenshot confirmed the existing
+  ten synthetic `Offline Kind` accounts with their schools. Maestro helpers were
+  absent, consistent with the prior cleanup. No account data was reset or removed.
+- Parameterized the main flow and assertion helper: default empty-state validation
+  remains active; explicitly passing `REQUIRE_EMPTY=false` plus a new ASCII
+  `CHILD_PREFIX` creates a separate ten-account fixture set, checks that set after
+  restarts and rejects its normalized duplicate. Existing accounts remain intact.
+  Official Maestro syntax validation passed; `git diff --check` passed.
+- Extracted only `maestro-app.apk` and `maestro-server.apk` from the existing
+  official Maestro 2.12.1 distribution to temporary local files. Both explicit
+  installations on the selected serial returned `INSTALL_FAILED_USER_RESTRICTED`
+  (`Install canceled by user`). Asked the user to ready USB installation/confirm
+  the prompts before any retry. No further flow or native test has run, no
+  networking setting changed, and no new platform/US1 acceptance is claimed.

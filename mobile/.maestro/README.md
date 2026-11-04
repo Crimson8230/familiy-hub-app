@@ -43,6 +43,23 @@ Versuche oder zusätzlichen Automatisierungsfreigaben auf diesem Gerät anforder
 Folgeprüfungen auf Emulator oder separatem Testgerät vorbereiten; ein erneuter
 Einsatz des persönlichen Geräts braucht eine neue ausdrückliche Beauftragung.
 
+**Aktualisierte Nutzerfreigabe 2026-11-04:** Für die aktuelle T032-Fortsetzung
+hat der Nutzer das verbundene Smartphone erneut ausdrücklich freigegeben.
+Die allgemeine Beschränkung für zukünftige Features bleibt bestehen. Bestehende
+Konten nicht zurücksetzen. Der Flow behält standardmäßig die Leerzustandsprüfung;
+für diesen vorhandenen synthetischen Testbestand kann explizit
+`-e REQUIRE_EMPTY=false -e CHILD_PREFIX="T032 Folge 20261104"` verwendet werden.
+Damit entstehen zehn weitere synthetische Konten, die nach Neustarts und gegen
+eine normalisierte Duplikatkennung geprüft werden; die alten Konten bleiben
+erhalten. Einen neuen ASCII-Präfix mit Groß-/Kleinbuchstaben wählen, der noch
+nicht im Bestand vorkommt. Dies ist keine Freigabe zum Zurücksetzen oder Löschen.
+Der Emulator-Starter bleibt weiterhin auf Emulatoren beschränkt; der konkrete
+Smartphone-Lauf wird nur unter der separaten ausdrücklichen Nutzerfreigabe direkt
+mit fest gewählter Seriennummer gestartet.
+
+Maestro-Parameter und Standardwerte:
+[offizielle Dokumentation](https://docs.maestro.dev/maestro-flows/flow-control-and-logic/parameters-and-constants).
+
 ## Ausführung aus `mobile/`
 
 Automatisierte Android-Läufe verwenden einen explizit gewählten Emulator.
