@@ -12,7 +12,7 @@ description: "Implementation tasks for Expo school-account management on Android
 [Testausführung](contracts/native-test-execution.md), [quickstart.md](quickstart.md),
 Constitution 2.0.0.
 
-**Stand**: T001–T023 sowie T060/T073 im freigegebenen Android-Umfang abgeschlossen; verschobene iOS-Grundlagenprüfung T087 jetzt bestanden (31 Szenarien, 7 Prozessneustarts, Fehlerprobe). T024–T031 sowie T063/T074 implementiert und geprüft. Nächster sequenzieller Schritt: T032 ff. Vollständige Story-/Releaseabnahme bleibt offen.
+**Stand**: T001–T023 sowie T060/T073 im freigegebenen Android-Umfang abgeschlossen; verschobene iOS-Grundlagenprüfung T087 jetzt bestanden (31 Szenarien, 7 Prozessneustarts, Fehlerprobe). T024–T031 sowie T063/T074 implementiert und geprüft. Android-Preview-Anteil T032 bestanden (3 UI-Phasen, 2 Prozessneustarts); nächster sequenzieller Prüfpunkt ist der iOS-Preview-Anteil T032. Vollständige Story-/Releaseabnahme bleibt offen.
 Expo-Aufgaben nach Planpräzisierung A1/U1/U2/C1 aktualisiert; 59
 Aufgaben werden nach tatsächlicher Umsetzung und Prüfung markiert; IDs beibehalten. Die bisherigen 40 erledigten
 Kotlin-Aufgaben sind unverändert in [tasks-kotlin-archive.md](tasks-kotlin-archive.md)
@@ -425,3 +425,123 @@ verification-expo.md und evidence/2026-11-04-ios-foundation.json.
 Die früheren Vertagungsvermerke bleiben als Verlauf erhalten. T032 ist jetzt der
 nächste sequenzielle Schritt. Weitere Sicherheitsfälle T077, Einzelberichtserweiterung
 T083, Offline-Preview und vollständige Story-/Releaseabnahme bleiben offen.
+
+### Vorbereitung Offline-Preview T032 (2026-11-04)
+
+Maestro-Hauptablauf `mobile/.maestro/create-account.yaml` mit Teilabläufen,
+stabilen UI-Testkennungen und Ausführungsanleitung erstellt. Zehn synthetische
+Konten mit beiden Schulen, zwei Prozessneustarts und Ablehnung einer
+normalisierten Duplikatkennung sind abgedeckt; kein automatisches Löschen von
+App-Daten oder Keychain. Offizieller Maestro-Syntaxcheck (2.12.1), Typprüfung,
+48 Unit-/Komponententests und 7 Hosttests bestanden. Separater Android-Diagnoselauf
+mit installierter native-test-App: 44/44 TS-Szenarien, 12 Prozessneustarts und
+TS-Fehlerprobe bestanden; kein neuer Kotlin-/vollständiger Plattformnachweis.
+Frisch generierter Android-Preview-Release-Build mit eingebettetem Bundle
+erfolgreich. Installation auf dem Testgerät durch
+`INSTALL_FAILED_USER_RESTRICTED` blockiert; Offline-UI-Lauf nicht gestartet.
+iOS-Preview mangels macOS/Xcode in dieser Umgebung nicht ausgeführt.
+**T032 bleibt offen; T033/T034 und nachfolgende sequenzielle Aufgaben wurden
+nicht vorgezogen.** Nachweise und Fortsetzung in verification-expo.md.
+
+Erneuter Installationsversuch nach Nutzerfreigabe erfolgreich. Preview startet
+ohne Metro bei ausgeschaltetem WLAN/mobilen Daten und besteht die Leerzustandsprüfung.
+Maestro bricht beim ersten Tippen mit fehlender `INJECT_EVENTS`-Berechtigung ab;
+noch keine Kontoanlage/Neustart-/Duplikatprüfung ausgeführt. Zusätzliche
+Xiaomi-Debugging-Freigabe angefragt, Netzwerkzustand anschließend wiederhergestellt.
+T032 bleibt offen; dieser Teilnachweis ersetzt den vollständigen Flow nicht.
+
+Weitere Wiederholung nach USB-Debugging-Freigabe: Maestro-Treiberinstallation
+zunächst erneut durch Installationsdialog blockiert, später mit aktiver
+Verbindung bis zum Flowstart erfolgreich. Beim Offline-Lauf mit
+`--no-reinstall-driver` blockiert Xiaomi den App-Start aus dem Hintergrund
+(`dev.mobile.maestro`, `Abort background activity starts`). Direkter ADB-Start
+zeigt weiterhin die leere Preview-App. Die zuvor vermutete Bedienung am Gerät
+ist damit nicht als Ursache belegt. Maestro-Hintergrundfenster-Freigabe angefragt;
+keine Kontoanlage/Neustart-/Duplikatabnahme, Netzwerkzustand wiederhergestellt.
+
+**Nutzerentscheidung 2026-11-04:** Nur noch ein abschließender ausdrücklich
+freigegebener Maestro-Lauf auf dem persönlichen Xiaomi-Gerät. Danach keine
+weiteren Versuche oder zusätzlichen Automatisierungsfreigaben auf diesem Gerät;
+Folgeprüfungen auf Emulator oder separatem Testgerät. Nach dem letzten Lauf
+Netzwerkzustand wiederherstellen und die ausschließlich dafür installierten
+Maestro-Testhelfer entfernen. Eine erneute Nutzung des persönlichen Geräts
+erfordert eine neue ausdrückliche Beauftragung.
+
+Abschließender einmaliger Lauf ausgeführt: Die Eingabe-/Startsteuerung funktioniert;
+zehn synthetische Konten wurden angelegt und in der Übersicht mit Schule beobachtet.
+Prozess beendet mit Exit 143 vor fertigem JUnit-/Kommandobericht; Ursache der
+Terminierung nicht nachgewiesen. Neustart-/Duplikatabnahme daher nicht bestätigt,
+T032 bleibt offen. Keine Wiederholung auf dem persönlichen Gerät. WLAN/mobile
+Daten auf ursprünglichen Zustand zurückgesetzt und geprüft; beide Maestro-Hilfsapps
+deinstalliert und Entfernung geprüft, drei erzeugte geräteweite Logcat-Dateien
+lokal entfernt. Offene Android-Prüfung künftig auf Emulator/separatem Testgerät;
+iOS-Preview bleibt ebenfalls offen.
+
+### Fortsetzung mit Emulator und manueller Handy-Preview (2026-11-04)
+
+Nutzerpräferenz präzisiert und in AGENTS.md festgehalten: Das persönliche Handy
+bleibt für manuelle Bedienungs-/Darstellungsprüfungen vorgesehen; keine
+automatisierten Maestro-/nativen Gerätetests. Neuer Starter
+`mobile/tests/tools/run-android-preview.mjs` verlangt eine explizite
+Emulator-Seriennummer und verifiziert Emulatoridentität, Bootstatus, vorhandenes
+Produktpaket und ausgeschaltete Datenverbindungen. Physische Geräte werden vor
+jedem ADB-Zugriff abgelehnt. Keine Installation, Resets, Netzwerkänderungen oder
+automatischen Wiederholungen; getrennte Berichtordner je Lauf. Sechs neue
+Schutzprüfungen plus sieben bestehende Hostprüfungen bestanden; CLI-Negativprobe
+weist eine physische Kennung vor Gerätezugriff ab.
+
+Separater Preview-Release-Build für x86_64 erfolgreich, eingebettetes Bundle und
+ABI geprüft. ARM64-APK für manuelle Tests separat erhalten. Die Linux-VM meldet
+bei `-accel-check` fehlendes vmx/svm/KVM; isolierter Read-only-Softwarestart des
+vorhandenen API-37-Emulators erreichte keinen testbereiten ADB-Zustand und wurde
+beendet. Kein Test am persönlichen Handy ausgeführt. **T032 bleibt offen**, bis
+Android-Host-Emulator und iOS-Simulator tatsächlich erfolgreich geprüft sind;
+T033/T034 nicht vorgezogen. Details und Artefaktnachweise in verification-expo.md.
+
+### Erneute ausdrückliche Smartphone-Freigabe (2026-11-04)
+
+Nutzer hat die Verwendung des verbundenen Smartphones für die aktuelle
+T032-Fortsetzung erneut ausdrücklich beauftragt; Ausnahme in AGENTS.md erfasst.
+Vorhandene zehn synthetische Konten in der Preview-Übersicht geprüft.
+Kein Reset: Flow um expliziten neuen `CHILD_PREFIX` und opt-in
+`REQUIRE_EMPTY=false` ergänzt; Standard bleibt leerer Testbestand.
+Maestro-Syntaxprüfung bestanden. Beide benötigten offiziellen Testhelfer wurden
+bei der Installation mit `INSTALL_FAILED_USER_RESTRICTED` abgewiesen;
+Installationsbereitschaft am Telefon angefragt. Kein neuer UI-Test gestartet,
+keine Konten oder Netzwerkzustände verändert; T032 bleibt offen.
+
+### Laufdiagnose und Bedienungskorrektur T032 (2026-11-04)
+
+Erneute Smartphone-Freigabe genutzt: offizielle Maestro-Helfer installiert.
+Treiberseitiger App-Start bleibt auf Xiaomi blockiert; deshalb gemeinsame
+UI-Phasen aus dem Hauptflow ausgelagert und App-Starts/-Neustarts explizit über
+ADB vom Host gesteuert (Prozessende prüfen, dann starten), ohne zusätzliche
+Hintergrundfenster-Freigaben zu erzwingen.
+
+Dabei echten UI-Fehler gefunden: Hinzufügen-Button bei zehn Konten überlagert
+Android-Systemnavigation (Button unten y=2328, Navigationsleiste ab y=2270).
+SafeAreaView um Übersicht und Formular ergänzt. Typprüfung, 48 Unit-/Komponententests
+und neuer ARM64-Preview-Build bestanden; datenerhaltendes Update installiert.
+Formularöffnung und zwei neue gespeicherte synthetische Konten nativ beobachtet.
+Testannahme nach Rückkehr zur gescrollten Liste korrigiert: erst zur Überschrift
+scrollen statt eine bereits sichtbare Überschrift vorauszusetzen. Keine Konten
+zurückgesetzt. Ein vollständiger neuer Drei-Phasen-Lauf mit neuem Präfix ist aktiv;
+T032 und nachfolgende sequenzielle Aufgaben bleiben bis zu echten Nachweisen offen.
+
+### Android-Preview-Nachweis T032 bestanden (2026-11-04)
+
+Vollständiger korrigierter Host-Lauf erfolgreich: drei gemeinsame Maestro-UI-Phasen
+bestanden (10 neue synthetische Konten, Lesen nach Neustart, Ablehnung eines
+Whitespace-/Großschreibungs-/Schulvarianten-Duplikats, endgültiger Bestand nach
+zweitem Neustart). Zwei echte Prozessenden/-starts per ADB geprüft, alle zehn
+Testnamen in jeder Phase verifiziert. Normaler Preview-Release mit eingebettetem
+Bundle, WLAN/mobile Daten vor/nach jeder Phase aus, Metro nicht aktiv. Vorhandene
+Konten nicht zurückgesetzt; exakte SQL-Gesamtanzahl nicht als UI-Nachweis behauptet.
+
+Netzwerkzustand wiederhergestellt und geprüft, beide Maestro-Helfer deinstalliert
+und Abwesenheit geprüft, drei geräteweite Rohprotokolle lokal entfernt.
+Safe-Area-Korrektur außerdem durch Typprüfung und 48 Unit-/Komponententests
+geprüft; verbesserte Preview bleibt für manuelle Tests auf dem Gerät installiert.
+Bereinigter Nachweis: evidence/2026-11-04-android-preview-ui.json.
+**T032 bleibt wegen der ausstehenden iOS-Preview-Prüfung offen; T033/T034 nicht
+vorgezogen.** Keine vollständige Story-/Releaseabnahme.

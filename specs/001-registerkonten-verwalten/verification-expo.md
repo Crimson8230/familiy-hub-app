@@ -559,3 +559,337 @@ Stand vor dieser Nutzerentscheidung.
   security/lifecycle coverage, accessibility, performance, user studies, full
   story/release acceptance and Kotlin-removal gates remain open. Earlier entries
   recording unavailable macOS/iOS infrastructure describe the historical state.
+
+## Offline Preview preparation: T032 (2026-11-04)
+
+- Sanitized result snapshot: [T032 preparation evidence](evidence/2026-11-04-t032-preparation.json).
+- Added `mobile/.maestro/create-account.yaml`, parameterized fill/assert helpers,
+  stable form/action test IDs, and [execution instructions](../../mobile/.maestro/README.md).
+  The flow creates ten synthetic accounts across both schools, checks every child
+  after a process stop/start, rejects a case/whitespace duplicate with a different
+  school, and checks all ten children after another restart. Visible credentials
+  are rejected. It requires an empty isolated preview installation and never clears
+  application data or the iOS Keychain. Exact SQL counts and Unicode/commit faults
+  remain separate native checks, rather than claims of the UI assertions.
+- Environment: Linux, Node 22.23.4 (temporary official distribution verified against
+  its published SHA-256), JDK 21.0.12.1, Maestro 2.12.1; locked Expo 58.0.19,
+  React Native 0.88.0, React 19.3.0. Connected Android test device: Xiaomi
+  M2101K6G, Android 13, serial `1b274288`.
+- Checks passed: official `maestro check-syntax` including helper references;
+  typecheck; 48 unit/component tests in 6 suites; 7 host tests; `git diff --check`.
+  The first cold Jest run timed out in one component test (47/48 passed); repeating
+  the unchanged suite passed all 48. No timeout increase or test suppression.
+- Separate native-test command from `mobile/`:
+
+  ```bash
+  npm run test:native -- --platform android --device 1b274288 --installed
+  ```
+
+  Result: **44 passed, 0 failed/skipped, 12 real process restarts**, intentional TS
+  failure probe verified, exit 0. Report:
+  `mobile/tests/artifacts/native/android-diagnostic-summary.json` with
+  `diagnostic: true`, `complete: false`. No Kotlin group or full platform acceptance
+  is claimed. The runner stopped its Metro server after execution.
+- Fresh preview generation and release build from `mobile/` succeeded:
+
+  ```bash
+  FAMILYHUB_BUILD_PROFILE=preview npx expo prebuild --platform android --no-install
+  cd android
+  FAMILYHUB_BUILD_PROFILE=preview ./gradlew :app:assembleRelease -PreactNativeArchitectures=arm64-v8a --console=plain
+  ```
+
+  Local Android SDK was supplied through `ANDROID_HOME`; Node 22 through PATH.
+  Gradle 9.4.1, Kotlin plugin 2.2.10, compile SDK 37, target SDK 36,
+  NDK 27.1.12297006. Build succeeded in 12m28s (896 tasks). Generated app ID:
+  `com.familyhub.app`, version 0.2.0/build 2; preview config and generated Android
+  sources have no FamilyHub native-test harness/source-set registration.
+  APK: `mobile/android/app/build/outputs/apk/release/app-release.apk`;
+  SHA-256 `0f5968d417b2f155601dc5da8ad134aef61466eb0ea2e8672793ea815baf24dd`.
+  ZIP inspection confirms embedded `assets/index.android.bundle` (2,156,064 bytes).
+  This proves packaging/build success, not successful device startup.
+- Installation using `adb -s 1b274288 install .../app-release.apk` failed with
+  `INSTALL_FAILED_USER_RESTRICTED: Install canceled by user`. Previously only the
+  separate native-test packages were installed. No uninstall/reset was attempted.
+  The Preview UI flow did **not** run. Device Wi-Fi and mobile-data settings were
+  read (both enabled), but not changed. Metro ports 8081/8089 were confirmed idle
+  after the native diagnostic.
+- **T032 remains open.** Resume by allowing USB installation on the test device,
+  installing the existing APK, disabling device networking, and running the main
+  Maestro flow as documented. Restore the original networking state afterwards.
+  Then execute the separate iOS Preview flow on macOS/Xcode; that environment is
+  unavailable in this session. Earlier T087 iOS results remain valid but do not
+  substitute for this standalone Preview run. T033/T034 and later sequential
+  acceptance work were not advanced. No full US1 or release acceptance is claimed.
+- No extension hooks are configured. The existing `feature/account-creation`
+  branch is continued from current `main`; no push, remote merge or publication.
+
+### Android installation retry and offline startup (2026-11-04)
+
+- Following explicit user confirmation that the installation prompt had been
+  dismissed accidentally, retrying the same APK installation succeeded. No new
+  build or application reset was needed; the APK hash above still applies.
+- Wi-Fi and mobile data were both initially enabled (`1`); temporarily disabled
+  using `adb shell svc wifi disable` and `svc data disable`, and both settings
+  confirmed `0`. Metro ports 8081/8089 had no listener. Ran from `mobile/`:
+
+  ```bash
+  maestro --device 1b274288 test --format junit \
+    --output tests/artifacts/preview/android/create-account.xml \
+    --debug-output tests/artifacts/preview/android/debug .maestro/create-account.yaml
+  ```
+
+- Preview offline launch and the expected empty-state assertion **passed**.
+  The first tap on `account-add` failed because Android denied `INJECT_EVENTS`.
+  Maestro's terminal/JUnit message was only "Unknown error"; the local command
+  metadata identifies the input-permission denial. The 1/1 flow failed (exit 1);
+  no account was created and no restart/duplicate acceptance was reached.
+  This is a test-device input restriction, not evidence of account-creation failure.
+- Asked the user to enable the Xiaomi developer option for USB debugging security
+  settings before retrying; no attempt was made to grant privileged input permission
+  by bypassing the device's security controls. Wi-Fi and mobile data were restored
+  with `svc ... enable` and both confirmed `1` after the failed flow.
+- Local Maestro artifacts include a device-wide logcat; they remain in ignored
+  `mobile/tests/artifacts/` and are not versioned or used as sanitized evidence.
+  The evidence JSON above records only the relevant result and permission code.
+  T032 remains open for a successful complete Android flow and iOS Preview run.
+
+### Xiaomi launch-control diagnosis after continuation (2026-11-04)
+
+- User authorized continuing after enabling USB-debugging security settings.
+  The next attempt initially stopped while reinstalling the Maestro driver with
+  `INSTALL_FAILED_USER_RESTRICTED`. Restored networking, prepared the driver online,
+  then used the documented Maestro 2.12.1 option `test --no-reinstall-driver` for
+  the offline flow. No application data was reset or account created.
+- The driver reached flow execution, but the launch/empty-state assertion failed.
+  Screenshots/hierarchy showed Android developer settings in the foreground.
+  Initial suspicion that manual device interaction caused this was not supported
+  by the subsequent diagnostic: filtered ActivityTaskManager logs explicitly show
+  a `com.familyhub.app/.MainActivity` launch request from `dev.mobile.maestro`
+  followed by `Abort background activity starts`. This is a distinct Xiaomi
+  restriction on the driver's ability to open another app, beyond input injection.
+- Direct `adb shell am start -W -n com.familyhub.app/.MainActivity` succeeded
+  while offline; a local screenshot confirmed the correct empty Preview UI and
+  `pidof` confirmed the process remained alive. The crash buffer contained no
+  crash record. This supports a test-launch-control restriction; it does not
+  establish a successful complete Maestro flow or prove the input permission fixed.
+- Asked for the Maestro application's permission to open windows from the
+  background. Instructions and reuse-driver guidance added to the Maestro README.
+  Wi-Fi/mobile data were both `1` before the attempts, both confirmed `0` during
+  the offline main flow, and enabled again for the diagnostic pause.
+  T032, downstream sequential gates and iOS Preview remain open. No additional
+  product changes or claims of completed account-creation acceptance.
+
+### Final authorized personal-device attempt and cleanup (2026-11-04)
+
+- User explicitly limited further testing to **one last attempt** on the personal
+  Xiaomi device because of security concerns. That authorization is now consumed.
+  No further attempts or additional automation permissions on that device;
+  use an emulator or a separate test device for subsequent work. Updated the
+  Maestro guide and tasks to preserve this instruction across future invocations.
+- Ran the unchanged `create-account.yaml` once using `--no-reinstall-driver`,
+  local JUnit output target `tests/artifacts/preview/android/create-account-final.xml`
+  and debug target `tests/artifacts/preview/android/final-debug`. Wi-Fi and mobile
+  data were initially `1`, disabled and confirmed `0`; Metro ports 8081/8089 were idle.
+  No cloud execution, state clearing, application reinstall or test retry.
+- Start/input control worked. Passive local progress screenshots showed the third
+  and sixth forms, eight saved accounts, and finally all **ten** synthetic children
+  with their alternating schools in the overview. No real credentials were used.
+  This is observed UI evidence; no exact SQL count was read by the preview flow.
+- The host process ended with **exit 143** before a completed JUnit/command report
+  was written. The cause of termination is not established. The complete flow
+  did not produce a passing result; neither the two process-restart checkpoints
+  nor duplicate rejection can be accepted from this attempt. No further run was
+  started, as requested. T032 stays unchecked; iOS Preview is also outstanding.
+- Cleanup completed: restored Wi-Fi/mobile data with `svc ... enable`, confirmed
+  both `1`; uninstalled only `dev.mobile.maestro.test` and `dev.mobile.maestro`,
+  both returned `Success`; verified `pm list packages maestro` returned no packages.
+  Family Hub and its synthetic test accounts remain installed. Deleted three
+  generated device-wide `device-logcat.txt` files from the local Maestro artifact
+  directories; no such raw logs are versioned. Targeted reports/metadata remain local.
+- No global developer/security toggles were changed automatically. User can now
+  switch off USB debugging, USB-debugging security settings and USB installation,
+  and disconnect the cable. The Maestro-specific background-window permission
+  belonged to the removed helper application.
+- Documentation-only follow-up validated with JSON parsing and `git diff --check`.
+  Earlier type/unit/host/native/build results above are unchanged; none substitutes
+  for the incomplete end-to-end run. No full story/platform/release acceptance.
+
+### Emulator-only continuation and x86_64 Preview (2026-11-04)
+
+- User clarified that the personal phone should retain the preview for **manual**
+  operation/display testing, with no automated Maestro/native/device tests. Recorded
+  this in AGENTS.md, mobile README, and tasks. The phone was not contacted in this
+  continuation. The existing feature/account-creation branch and clean prior work
+  were retained. Requirements checklist remains 16/16 complete; no extension hooks.
+- Added `npm run test:preview:android -- --device emulator-5554`. Its new wrapper
+  rejects physical/missing/malformed targets before any ADB invocation; then
+  checks `ro.kernel.qemu=1`, completed boot, installed product package and disabled
+  Wi-Fi/mobile data using only explicit `-s emulator-PORT` read commands.
+  It does not discover devices, install/reset apps, change networking or retry.
+  Product package presence alone does not certify the build profile: the documented
+  precondition is installation of the dedicated preview APK, plus stopped Metro.
+  Maestro runs locally with analytics disabled and its existing driver reused.
+  Each run has a unique timestamp/PID artifact directory and a 45-minute command
+  timeout. Nonzero exit, termination or missing full report remains incomplete.
+- `npm run test:host` passed **13 checks** (7 existing orchestration checks and
+  6 new emulator-guard checks). A separate CLI negative probe with a synthetic
+  physical-device identifier exited 1 with the expected emulator-only message,
+  without invoking ADB. These host checks do not represent native or Preview UI
+  acceptance. No product logic changed; existing app tests were not rerun needlessly.
+- Emulator feasibility: outside the sandbox, Android Emulator 37.2.12.0
+  `-accel-check` returned exit 3, `KVM requires a CPU that supports vmx or svm`.
+  The installed `Medium_Phone_API_37.0` x86_64 AVD was tried with
+  `-read-only -no-window -no-audio -no-snapshot -accel off -gpu swiftshader -port 5560`.
+  Only emulator-5560 was queried. It remained ADB-offline at both boot checks.
+  Stopped this diagnostic instance using its emulator console; snapshots were
+  disabled, no saved AVD data was replaced. The emulator exited 139 during teardown
+  after the requested stop; no successful boot or runtime result is claimed.
+  Google documents unaccelerated operation as very slow/unsupported in the
+  [emulator command-line reference](https://developer.android.com/studio/run/emulator-commandline).
+  A supported host emulator environment is still needed; macOS/Xcode is also
+  unavailable in this session for the outstanding iOS Preview run.
+- Built the unchanged product sources for an x86_64 host emulator using:
+
+  ```bash
+  FAMILYHUB_BUILD_PROFILE=preview ./gradlew :app:assembleRelease -PreactNativeArchitectures=x86_64 --console=plain
+  ```
+
+  From mobile/android with Node 22 and ANDROID_HOME supplied. **Build passed in
+  4m58s**, 896 tasks (63 executed, 833 up-to-date). APK ZIP inspection confirms only
+  `lib/x86_64/` libraries and embedded `assets/index.android.bundle`.
+  Preserved the existing ARM64 preview separately before building; no installation
+  was attempted on the personal phone or a non-ready emulator.
+
+  | Purpose | Local ignored artifact | SHA-256 |
+  | --- | --- | --- |
+  | Android x86_64 emulator | `mobile/tests/artifacts/preview/android/x86_64/app-release.apk` | `2c4766964ef143264550200ce68ff571060a110ff255b1e25880ab2090162f7f` |
+  | Manual ARM64 phone testing | `mobile/tests/artifacts/preview/android/arm64-v8a/app-release.apk` | `0f5968d417b2f155601dc5da8ad134aef61466eb0ea2e8672793ea815baf24dd` |
+
+- **T032 remains unchecked** for actual complete Android/iOS Preview execution.
+  No downstream sequential gates advanced. Pending host-environment information
+  does not authorize phone automation or imply successful runtime acceptance.
+
+### Renewed phone authorization and preserved test inventory (2026-11-04)
+
+- User explicitly authorized using the connected smartphone again for the current
+  T032 continuation. Recorded the narrow exception in AGENTS.md; the default
+  emulator-only wrapper remains unchanged. This is not a blanket authorization
+  for future features or deletion of existing data.
+- Direct preview launch and a local overview screenshot confirmed the existing
+  ten synthetic `Offline Kind` accounts with their schools. Maestro helpers were
+  absent, consistent with the prior cleanup. No account data was reset or removed.
+- Parameterized the main flow and assertion helper: default empty-state validation
+  remains active; explicitly passing `REQUIRE_EMPTY=false` plus a new ASCII
+  `CHILD_PREFIX` creates a separate ten-account fixture set, checks that set after
+  restarts and rejects its normalized duplicate. Existing accounts remain intact.
+  Official Maestro syntax validation passed; `git diff --check` passed.
+- Extracted only `maestro-app.apk` and `maestro-server.apk` from the existing
+  official Maestro 2.12.1 distribution to temporary local files. Both explicit
+  installations on the selected serial returned `INSTALL_FAILED_USER_RESTRICTED`
+  (`Install canceled by user`). Asked the user to ready USB installation/confirm
+  the prompts before any retry. No further flow or native test has run, no
+  networking setting changed, and no new platform/US1 acceptance is claimed.
+
+### Renewed execution: host-controlled launch and navigation-bar fix (2026-11-04)
+
+- Both official Maestro helpers eventually installed after the phone's USB
+  installation prompts were accepted. The next direct-Maestro attempt failed
+  before account creation: its overview assertion showed Android developer
+  settings, consistent with the previously observed driver background-launch
+  restriction. The external host controller wrote an incomplete summary, restored
+  both initial network values, removed both helpers and deleted the raw device log.
+- Split the existing main flow into three shared UI phases: create ten accounts,
+  verify persisted accounts/reject duplicate, and final persisted-state check.
+  The main flow still composes those phases with Maestro stop/launch commands.
+  For the authorized phone alternative, the host instead executes explicit ADB
+  force-stop, verifies no target PID remains, starts the app explicitly, then runs
+  each UI phase. This requires no forced background-start permission for Maestro.
+  The same fixture prefix is used throughout; prior accounts are not reset.
+- That host-launch variant reached the overview successfully, but the first add
+  action did not open the form. The captured hierarchy gives `account-add` bounds
+  `[66,2231][1014,2328]`, while Android's navigation bar starts at y=2270.
+  The button center was inside the system-navigation area. The next form-field
+  lookup therefore failed; no new account was created. This was a real layout
+  defect exposed by the ten existing accounts, beyond the earlier test-launch issue.
+- Added SafeAreaView with bottom/left/right edges around both account screens,
+  constraining the scroll viewport above system navigation; top is already handled
+  by the router header. Typecheck and all 48 unit/component tests in 6 suites pass.
+  Main/phase YAML syntax checks pass; no schema/storage behavior changed.
+- Rebuilt ARM64 preview: **build passed in 56s**, 896 tasks (65 executed,
+  831 up-to-date). Artifact:
+  `mobile/tests/artifacts/preview/android/arm64-v8a-safe-area/app-release.apk`,
+  SHA-256 `37a8a9ca103df8fffcbb9e4622119138ccfd1c5f437e8f416de54aee448c3250`.
+  Installed with `adb install -r` (success), preserving accounts; both helper
+  installations also succeeded. The earlier emulator APK predates this UI fix.
+- Started a new host-controlled offline run with a fresh synthetic fixture prefix,
+  without resetting the old ten accounts. A passive local screenshot confirms
+  that Add now opens the form and fields can be filled above the navigation area.
+  Full phase/restart results remain pending until all three reports finish.
+
+- The safe-area build subsequently saved two new synthetic accounts successfully.
+  The attempt then stopped because the test expected the overview title to already
+  be visible after returning to the list. A local screenshot showed the correct
+  saved rows with the list retaining its lower scroll offset; the title was above
+  the viewport. Removed that premature visible-title wait: the next existing step
+  explicitly scrolls UP to the title before finding the newly saved child.
+  This is a test correction, not a storage or navigation-state reset. No rebuild
+  was required for that YAML change. The prior run restored networking, removed
+  helpers and deleted its raw device log; its partial fixture rows were retained.
+- Reinstalled the two official helpers (both succeeded) and started a new full
+  host-controlled run using the corrected shared phases and another unique prefix.
+  The final-state check explicitly uses case-sensitive regex to verify original
+  display capitalization and absence of a lowercased duplicate display row.
+  Reports use separate per-run/per-phase paths and retain an exact local copy of
+  the temporary host controller. Full runtime acceptance is still pending.
+
+### Android offline Preview UI acceptance: T032 Android scope (2026-11-04)
+
+- **Passed:** all three shared UI phases in the corrected preview, with two actual
+  process restarts verified by the host. Sanitized versioned evidence:
+  [Android Preview UI results](evidence/2026-11-04-android-preview-ui.json).
+  Source commit `f0cb16f`; normal preview `com.familyhub.app`, 0.2.0/build 2,
+  ARM64, embedded bundle verified, APK SHA-256
+  `37a8a9ca103df8fffcbb9e4622119138ccfd1c5f437e8f416de54aee448c3250`.
+  Xiaomi M2101K6G/Android 13, Maestro 2.12.1. No Expo Go, Metro or native-test
+  binary used for this standalone UI evidence.
+- Executed with the user's renewed explicit authorization, preserving existing
+  accounts. Fixture prefix `T032 Folge 20261104 195130`. The host first launched
+  the app directly; between phases it force-stopped the target, verified the PID
+  was absent and launched the target successfully again. UI phases contain no
+  launch commands themselves. No background-start permission was forced.
+
+  | Phase / JUnit testcase | Result | Runtime |
+  | --- | --- | --- |
+  | Offline creation of ten accounts | Passed, 10 completed Save actions and 10 fixture names verified | 730.888 s |
+  | Persisted accounts and duplicate rejection | Passed, all 10 names after first restart; explicit duplicate error verified | 235.047 s |
+  | Final accounts after restart | Passed, all 10 names after second restart and original display capitalization retained | 185.667 s |
+
+  Each report contains one successful testcase, no failure/error/skip; all three
+  Maestro processes exited 0. Runtime is orchestration time, **not** an app latency
+  or T055 performance result. Exact SQL total count was not queried by these UI
+  tests; native repository/count proofs remain separate.
+- Wi-Fi and mobile data were both initially `1`, verified `0` before the flow and
+  before/after every phase. Metro ports 8081/8089 had no listener. The scenario
+  uses synthetic credentials only, alternating schools, and rejects the normalized
+  same-child variant despite a different selected school. No existing account
+  reset, deletion or reinstallation of Family Hub during this successful run.
+- The layout fix is exercised by the real Add/Save/Cancel actions. A live trace
+  places Add at `[66,2107][1014,2204]`, above navigation starting at y=2270,
+  compared with the failing pre-fix bottom y=2328. Typecheck and all 48 unit/
+  component tests also passed on the safe-area code. Existing foundation/native
+  evidence is retained separately; this run adds no new Kotlin group or full
+  native/security-platform acceptance claim.
+- Cleanup **verified** by the host: restored both network values to `1`, uninstalled
+  `dev.mobile.maestro.test` and `dev.mobile.maestro` (both Success), confirmed no
+  Maestro packages remained, and removed the three generated device-wide logcat
+  files. Preview and all synthetic/previous accounts remain installed for manual
+  testing. Global USB debugging/security/install toggles remain user-controlled.
+- Local ignored artifacts:
+  `mobile/tests/artifacts/preview/android/phone-verified-scroll-20261104T195130Z/`:
+  `summary.json`, three named JUnit files, command metadata and a copy of the exact
+  temporary host controller. Raw device-wide logs are excluded and removed; the
+  versioned evidence contains only scoped results and fixture/build metadata.
+- **T032 stays unchecked solely for its outstanding iOS Preview scope.** T033/T034
+  and later sequential acceptance work were not advanced. Earlier failed attempts
+  remain documented as history; they are not counted as passing. No full US1,
+  feature, security, accessibility, performance or release acceptance is claimed.

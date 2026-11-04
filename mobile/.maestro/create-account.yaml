@@ -1,0 +1,19 @@
+# Default: fresh preview on an isolated device. With explicit authorization,
+# REQUIRE_EMPTY=false and a new CHILD_PREFIX preserve an existing test inventory.
+# Stop Metro and disable device networking BEFORE invoking this flow.
+# Deliberately never clear app data or the iOS Keychain here.
+appId: com.familyhub.app
+name: Offline account creation, process restart and duplicate rejection
+env:
+  REQUIRE_EMPTY: ${REQUIRE_EMPTY || 'true'}
+  CHILD_PREFIX: ${CHILD_PREFIX || 'Offline Kind'}
+---
+- launchApp
+- runFlow: helpers/create-ten-accounts.yaml
+# A real process stop/start, preserving the encrypted DB and secure-store key.
+- stopApp
+- launchApp
+- runFlow: helpers/check-duplicate.yaml
+- stopApp
+- launchApp
+- runFlow: helpers/check-final-state.yaml

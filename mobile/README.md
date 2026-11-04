@@ -6,7 +6,9 @@ Current status: secure-storage foundation and initial account creation/list UI i
 Android foundation checkpoint T023 passed; account creation and minimal list UI are
 implemented. Account deletion and full story/preview acceptance are pending.
 iOS foundation check T087 passed on an iOS 27.2 Simulator: 31 native scenarios,
-7 process restarts and the intentional failure probe. T032 is next;
+7 process restarts and the intentional failure probe. Android standalone Preview
+creation/restarts/duplicate rejection now pass (3 UI phases, 2 real process restarts).
+T032 remains open for its iOS Preview counterpart;
 full story/platform/release acceptance stays gated by the remaining tasks.
 As of 2026-11-04, the legacy read-only snapshot defect is fixed and all 34 Android
 TS scenarios and all 7 Kotlin tests pass together in the complete Android run,
@@ -56,6 +58,28 @@ For example: `FAMILYHUB_BUILD_PROFILE=development npx expo run:android`.
 A native dependency/configuration or profile change requires `npx expo prebuild --no-install`
 with the same profile followed by a new native build.
 Preview embeds its JS bundle so offline startup does not depend on Metro.
+
+The standalone account-creation flow and platform execution instructions are in
+[.maestro/README.md](.maestro/README.md). It requires a fresh, isolated preview
+installation and disabled device networking; it never clears existing app data.
+Run the main `create-account.yaml` file, not the parameterized helper directory.
+For Android automation use `npm run test:preview:android -- --device emulator-5554`;
+the starter rejects physical devices before contacting ADB and checks emulator
+identity/readiness and offline settings. The personal phone is reserved for manual
+preview testing. No automated native/Maestro runs on that phone are authorized.
+
+For manual phone checks, launch the ARM64 preview normally without USB/debugging.
+Check field/button readability, school selection, keyboard and scrolling, saving
+synthetic credentials, duplicate rejection, and persistence after closing/reopening
+offline. Creation and a minimal list are available; deletion and full overview
+behavior are still pending. Record steps, expected/actual behavior and app/OS
+versions without real credentials. No automated test tooling is needed on the phone.
+
+The latest ARM64 preview fixes account actions overlapping Android system navigation.
+It was installed as an update preserving existing accounts and passed the full
+Android offline UI flow. Local artifact:
+`tests/artifacts/preview/android/arm64-v8a-safe-area/app-release.apk`.
+The earlier x86_64 artifact predates this UI fix; rebuild it before emulator acceptance.
 
 Local Android requires a JDK and Android SDK. Local iOS requires macOS/Xcode.
 Store submission and EAS account setup are outside this implementation stage.

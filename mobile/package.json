@@ -10,7 +10,8 @@
     "typecheck": "npm run generate:schema && tsc --noEmit",
     "test": "jest",
     "generate:schema": "node tests/tools/generate-schema.mjs",
-    "test:host": "node tests/tools/nativeTestOrchestration.test.mjs",
+    "test:host": "node tests/tools/nativeTestOrchestration.test.mjs && node tests/tools/androidPreview.test.mjs",
+    "test:preview:android": "node tests/tools/run-android-preview.mjs",
     "test:native": "node tests/tools/run-native-tests.mjs"
   },
   "engines": {
