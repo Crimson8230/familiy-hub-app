@@ -12,7 +12,7 @@ description: "Implementation tasks for Expo school-account management on Android
 [Testausführung](contracts/native-test-execution.md), [quickstart.md](quickstart.md),
 Constitution 2.0.0.
 
-**Stand**: T001–T023 sowie T060/T073 im freigegebenen Android-Umfang abgeschlossen; verschobene iOS-Grundlagenprüfung T087 jetzt bestanden (31 Szenarien, 7 Prozessneustarts, Fehlerprobe). T024–T031 sowie T063/T074 implementiert und geprüft. Nächster sequenzieller Schritt: T032 ff. Vollständige Story-/Releaseabnahme bleibt offen.
+**Stand**: T001–T023 sowie T060/T073 im freigegebenen Android-Umfang abgeschlossen; verschobene iOS-Grundlagenprüfung T087 jetzt bestanden (31 Szenarien, 7 Prozessneustarts, Fehlerprobe). T024–T031 sowie T063/T074 implementiert und geprüft. Android-Preview-Anteil T032 bestanden (3 UI-Phasen, 2 Prozessneustarts); nächster sequenzieller Prüfpunkt ist der iOS-Preview-Anteil T032. Vollständige Story-/Releaseabnahme bleibt offen.
 Expo-Aufgaben nach Planpräzisierung A1/U1/U2/C1 aktualisiert; 59
 Aufgaben werden nach tatsächlicher Umsetzung und Prüfung markiert; IDs beibehalten. Die bisherigen 40 erledigten
 Kotlin-Aufgaben sind unverändert in [tasks-kotlin-archive.md](tasks-kotlin-archive.md)
@@ -527,3 +527,21 @@ Testannahme nach Rückkehr zur gescrollten Liste korrigiert: erst zur Überschri
 scrollen statt eine bereits sichtbare Überschrift vorauszusetzen. Keine Konten
 zurückgesetzt. Ein vollständiger neuer Drei-Phasen-Lauf mit neuem Präfix ist aktiv;
 T032 und nachfolgende sequenzielle Aufgaben bleiben bis zu echten Nachweisen offen.
+
+### Android-Preview-Nachweis T032 bestanden (2026-11-04)
+
+Vollständiger korrigierter Host-Lauf erfolgreich: drei gemeinsame Maestro-UI-Phasen
+bestanden (10 neue synthetische Konten, Lesen nach Neustart, Ablehnung eines
+Whitespace-/Großschreibungs-/Schulvarianten-Duplikats, endgültiger Bestand nach
+zweitem Neustart). Zwei echte Prozessenden/-starts per ADB geprüft, alle zehn
+Testnamen in jeder Phase verifiziert. Normaler Preview-Release mit eingebettetem
+Bundle, WLAN/mobile Daten vor/nach jeder Phase aus, Metro nicht aktiv. Vorhandene
+Konten nicht zurückgesetzt; exakte SQL-Gesamtanzahl nicht als UI-Nachweis behauptet.
+
+Netzwerkzustand wiederhergestellt und geprüft, beide Maestro-Helfer deinstalliert
+und Abwesenheit geprüft, drei geräteweite Rohprotokolle lokal entfernt.
+Safe-Area-Korrektur außerdem durch Typprüfung und 48 Unit-/Komponententests
+geprüft; verbesserte Preview bleibt für manuelle Tests auf dem Gerät installiert.
+Bereinigter Nachweis: evidence/2026-11-04-android-preview-ui.json.
+**T032 bleibt wegen der ausstehenden iOS-Preview-Prüfung offen; T033/T034 nicht
+vorgezogen.** Keine vollständige Story-/Releaseabnahme.

@@ -841,3 +841,55 @@ Stand vor dieser Nutzerentscheidung.
   display capitalization and absence of a lowercased duplicate display row.
   Reports use separate per-run/per-phase paths and retain an exact local copy of
   the temporary host controller. Full runtime acceptance is still pending.
+
+### Android offline Preview UI acceptance: T032 Android scope (2026-11-04)
+
+- **Passed:** all three shared UI phases in the corrected preview, with two actual
+  process restarts verified by the host. Sanitized versioned evidence:
+  [Android Preview UI results](evidence/2026-11-04-android-preview-ui.json).
+  Source commit `f0cb16f`; normal preview `com.familyhub.app`, 0.2.0/build 2,
+  ARM64, embedded bundle verified, APK SHA-256
+  `37a8a9ca103df8fffcbb9e4622119138ccfd1c5f437e8f416de54aee448c3250`.
+  Xiaomi M2101K6G/Android 13, Maestro 2.12.1. No Expo Go, Metro or native-test
+  binary used for this standalone UI evidence.
+- Executed with the user's renewed explicit authorization, preserving existing
+  accounts. Fixture prefix `T032 Folge 20261104 195130`. The host first launched
+  the app directly; between phases it force-stopped the target, verified the PID
+  was absent and launched the target successfully again. UI phases contain no
+  launch commands themselves. No background-start permission was forced.
+
+  | Phase / JUnit testcase | Result | Runtime |
+  | --- | --- | --- |
+  | Offline creation of ten accounts | Passed, 10 completed Save actions and 10 fixture names verified | 730.888 s |
+  | Persisted accounts and duplicate rejection | Passed, all 10 names after first restart; explicit duplicate error verified | 235.047 s |
+  | Final accounts after restart | Passed, all 10 names after second restart and original display capitalization retained | 185.667 s |
+
+  Each report contains one successful testcase, no failure/error/skip; all three
+  Maestro processes exited 0. Runtime is orchestration time, **not** an app latency
+  or T055 performance result. Exact SQL total count was not queried by these UI
+  tests; native repository/count proofs remain separate.
+- Wi-Fi and mobile data were both initially `1`, verified `0` before the flow and
+  before/after every phase. Metro ports 8081/8089 had no listener. The scenario
+  uses synthetic credentials only, alternating schools, and rejects the normalized
+  same-child variant despite a different selected school. No existing account
+  reset, deletion or reinstallation of Family Hub during this successful run.
+- The layout fix is exercised by the real Add/Save/Cancel actions. A live trace
+  places Add at `[66,2107][1014,2204]`, above navigation starting at y=2270,
+  compared with the failing pre-fix bottom y=2328. Typecheck and all 48 unit/
+  component tests also passed on the safe-area code. Existing foundation/native
+  evidence is retained separately; this run adds no new Kotlin group or full
+  native/security-platform acceptance claim.
+- Cleanup **verified** by the host: restored both network values to `1`, uninstalled
+  `dev.mobile.maestro.test` and `dev.mobile.maestro` (both Success), confirmed no
+  Maestro packages remained, and removed the three generated device-wide logcat
+  files. Preview and all synthetic/previous accounts remain installed for manual
+  testing. Global USB debugging/security/install toggles remain user-controlled.
+- Local ignored artifacts:
+  `mobile/tests/artifacts/preview/android/phone-verified-scroll-20261104T195130Z/`:
+  `summary.json`, three named JUnit files, command metadata and a copy of the exact
+  temporary host controller. Raw device-wide logs are excluded and removed; the
+  versioned evidence contains only scoped results and fixture/build metadata.
+- **T032 stays unchecked solely for its outstanding iOS Preview scope.** T033/T034
+  and later sequential acceptance work were not advanced. Earlier failed attempts
+  remain documented as history; they are not counted as passing. No full US1,
+  feature, security, accessibility, performance or release acceptance is claimed.

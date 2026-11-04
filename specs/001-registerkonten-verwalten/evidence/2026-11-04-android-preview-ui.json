@@ -1,0 +1,84 @@
+{
+  "date": "2026-11-04",
+  "scope": "Android offline preview UI; iOS remains open",
+  "sourceCommit": "f0cb16f",
+  "completeFeatureAcceptance": false,
+  "device": {
+    "serial": "1b274288",
+    "model": "Xiaomi M2101K6G",
+    "os": "Android 13"
+  },
+  "build": {
+    "profile": "preview",
+    "applicationId": "com.familyhub.app",
+    "version": "0.2.0",
+    "versionCode": 2,
+    "abi": "arm64-v8a",
+    "sha256": "37a8a9ca103df8fffcbb9e4622119138ccfd1c5f437e8f416de54aee448c3250",
+    "embeddedBundleVerified": true
+  },
+  "maestroVersion": "2.12.1",
+  "fixturePrefix": "T032 Folge 20261104 195130",
+  "existingAccountsReset": false,
+  "exactSqlCountQueried": false,
+  "flowPassed": true,
+  "phases": [
+    {
+      "name": "create-ten-accounts",
+      "passed": true,
+      "testcase": "Offline creation of ten accounts",
+      "seconds": 730.888,
+      "saveButtonActions": 10,
+      "fixtureNamesVerified": 10
+    },
+    {
+      "name": "check-duplicate",
+      "passed": true,
+      "testcase": "Persisted accounts and duplicate rejection",
+      "seconds": 235.047,
+      "saveButtonActions": 1,
+      "fixtureNamesVerified": 10,
+      "duplicateMessageVerified": true
+    },
+    {
+      "name": "check-final-state",
+      "passed": true,
+      "testcase": "Final accounts after restart",
+      "seconds": 185.667,
+      "saveButtonActions": 0,
+      "fixtureNamesVerified": 10
+    }
+  ],
+  "hostRestartsVerified": 2,
+  "launchMethod": "explicit host ADB",
+  "originalNetwork": {
+    "wifi_on": "1",
+    "mobile_data": "1"
+  },
+  "offlineNetwork": {
+    "wifi_on": "0",
+    "mobile_data": "0"
+  },
+  "checkedNetworkBeforeAndAfterEachPhase": true,
+  "cleanup": {
+    "wifi_on": true,
+    "mobile_data": true,
+    "dev.mobile.maestro.test": true,
+    "dev.mobile.maestro": true,
+    "helpersAbsent": true
+  },
+  "rawDeviceLogsRemoved": 3,
+  "regression": {
+    "typecheckPassed": true,
+    "unitComponentTestsPassed": 48
+  },
+  "outstanding": [
+    "iOS Preview execution for T032",
+    "T033",
+    "T034 and subsequent acceptance gates"
+  ],
+  "metroPortsIdleBeforeRun": [
+    8081,
+    8089
+  ]
+}
