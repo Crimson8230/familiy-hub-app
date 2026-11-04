@@ -1,24 +1,32 @@
-# Feature Specification: Registerkonten auf Android verwalten
+# Feature Specification: Registerkonten auf Android und iOS verwalten
 
 **Feature Branch**: `main` (kein Feature-Branch durch Hook angelegt)
 
 **Created**: 2026-10-24
 
-**Status**: Draft
+**Status**: Draft – Plattformumfang auf Android und iOS erweitert;
+technische Neuplanung in `plan.md` dokumentiert; Expo-Umsetzung und
+plattformübergreifende Verifikation stehen aus.
 
 **Input**: User description: "Es wird eine Android-App erstellt, in der man Registerkonten verwalten kann. Man kann pro Kind ein Schulkonto einrichten. Dieses kann man speichern und löschen. Daten werden persistent am Handy in einer DB gespeichert."
+
+**Aktualisierter Plattformumfang (2026-10-24)**: Die Kontenverwaltung wird für
+Android und iOS spezifiziert. Die ursprüngliche Beschreibung oben bleibt als
+historischer Input erhalten; die fachlichen Anforderungen bleiben bestehen.
 
 ## Clarifications
 
 ### Session 2026-10-24
 
 - Q: Soll für jedes Kind genau ein Schulkonto gespeichert werden können, oder auch mehrere? → A: Genau ein Schulkonto je Kind.
+- Der Plattformumfang wurde auf Android und iOS erweitert. Alle folgenden
+  Anforderungen und Akzeptanzszenarien gelten für beide Plattformen.
 
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Schulkonto für ein Kind speichern (Priority: P1)
 
-Ein Elternteil öffnet die Android-App, gibt einen unterscheidbaren Namen für das Kind,
+Ein Elternteil öffnet die App auf Android oder iOS, gibt einen unterscheidbaren Namen für das Kind,
 die Schule und die Registerzugangsdaten ein und speichert das Konto. Das Konto ist
 danach in der Übersicht dem richtigen Kind zugeordnet. Die Einrichtung funktioniert
 auch ohne Internet, weil in diesem Schritt noch kein Registerabgleich stattfindet.
@@ -65,6 +73,19 @@ und beide Kinder mit ihrer jeweiligen Schule erkennen, ohne Passwörter zu sehen
    **Then** erklärt ein Leerzustand, wie das erste Konto angelegt wird.
 3. **Given** gespeicherte Konten sind vorhanden, **When** das Handy offline ist,
    **Then** bleibt die Übersicht vollständig nutzbar und zeigt kein Passwort an.
+4. **Given** die bisherige Android-App enthält gespeicherte Konten auf einem
+   weiterhin unterstützten Gerät, **When** ein reguläres Update auf die neue App
+   installiert und offline gestartet wird, **Then** bleiben alle Konten mit
+   ursprünglicher Zuordnung und unveränderten Zugangsdaten erhalten, ohne erneute
+   Eingabe oder doppelte Einträge.
+5. **Given** eine notwendige Übernahme kann nicht vollständig geprüft werden,
+   **When** die App startet, **Then** zeigt sie einen verständlichen Fehler mit
+   erneutem Versuch, erhält den vorhandenen Datenbestand und sperrt Änderungen;
+   sie zeigt keinen scheinbar erfolgreichen Leerzustand.
+6. **Given** eine Übernahme wurde durch vollständiges Beenden der App unterbrochen,
+   **When** die App erneut offline startet, **Then** wird die Übernahme ohne
+   Duplikate fortgesetzt; nach Erfolg gelöschte Konten erscheinen bei späteren
+   Neustarts nicht erneut aus dem alten Datenbestand.
 
 ---
 
@@ -105,12 +126,17 @@ angelegt werden kann.
   das Anlegen, Anzeigen oder Löschen lokaler Konten.
 - Zugangsdaten dürfen in Übersicht, Fehlermeldungen und Bestätigungsdialogen
   nicht offengelegt werden.
+- Ein fehlender oder vorübergehend unzugänglicher sicherer Speicher darf keinen
+  automatischen Reset bestehender Konten auslösen; die App bietet einen erneuten
+  Versuch ohne Datenänderung an.
+- Eine neue iOS-Installation beginnt ohne Konten. Eine lokale Übernahme beim
+  Android-App-Update ist kein Gerätewechsel und kein nutzerseitiger Import.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: Die App MUST auf Android ohne Family-Hub-Server starten und einen
+- **FR-001**: Die App MUST auf Android und iOS ohne Family-Hub-Server starten und einen
   Zugang zur Registerkontenübersicht anbieten.
 - **FR-002**: Die App MUST das Anlegen eines Kontos mit unterscheidbarem
   Kindernamen, Schule, Registerbenutzernamen und Registerpasswort ermöglichen.
@@ -122,10 +148,10 @@ angelegt werden kann.
 - **FR-005**: Die App MUST genau ein gespeichertes Schulkonto pro Kind zulassen;
   Kindernamen, die sich nur durch Großschreibung oder äußere Leerzeichen
   unterscheiden, gelten für diese Regel als gleich.
-- **FR-006**: Die App MUST Konto und Zugangsdaten dauerhaft auf dem Handy in
-  einer lokalen Datenbank speichern, sodass sie nach App-Neustart offline verfügbar
-  sind. Das Datenschema MUST spätere Migrationen ohne Verlust bestehender Konten
-  ermöglichen.
+- **FR-006**: Die App MUST Kontometadaten dauerhaft in einer lokalen Datenbank
+  und Zugangsdaten geschützt auf dem Handy speichern, sodass beide nach
+  App-Neustart offline verfügbar sind. Das Datenschema MUST spätere Migrationen
+  ohne Verlust bestehender Konten ermöglichen.
 - **FR-007**: Zugangsdaten MUST geschützt gespeichert werden. Das Passwort darf
   nach dem Speichern weder in der Oberfläche noch in Protokollen,
   Absturzberichten oder ungeschützten Sicherungen erscheinen.
@@ -139,8 +165,17 @@ angelegt werden kann.
   vorherigen Zustand erhalten; ein Fehler MUST verständlich angezeigt werden.
 - **FR-012**: Anlegen, Anzeigen und Löschen MUST ohne Internetverbindung und
   ohne Prüfung der Zugangsdaten am Schulregister funktionieren.
-- **FR-013**: Die App MUST Kind und Schule auch mit vergrößerter Android-Schrift
+- **FR-013**: Die App MUST Kind und Schule auch mit vergrößerter Systemschrift auf Android und iOS
   lesbar und die Aktionen eindeutig beschriftet darstellen.
+- **FR-014**: Bei einem regulären Update der bisherigen Android-App auf einem
+  weiterhin unterstützten Gerät MUST die App alle vorhandenen Konten samt
+  Zuordnung und Zugangsdaten offline und ohne erneute Eingabe übernehmen.
+  Wiederholte Starts dürfen weder Duplikate noch erneut auftauchende gelöschte
+  Konten erzeugen.
+- **FR-015**: Eine fehlgeschlagene oder noch nicht vollständig geprüfte Übernahme
+  MUST den vorhandenen Datenbestand erhalten, Änderungen sperren und einen
+  verständlichen Fehler mit erneutem Versuch zeigen. Ein leerer oder aktueller
+  Datenbestand darf dabei nicht vorgetäuscht werden.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -156,6 +191,12 @@ angelegt werden kann.
 
 ### Measurable Outcomes
 
+SC-001 bis SC-005 MUST auf Android und iOS jeweils erfüllt und getrennt
+nachgewiesen werden. SC-006 gilt ausschließlich für den unterstützten Updatepfad
+der bisherigen Android-App; eine iOS-Neuinstallation wird über die gemeinsamen
+Szenarien geprüft. Bisherige Android-Testergebnisse belegen ausschließlich die
+bisherige Android-Implementierung.
+
 - **SC-001**: In einem Nutzungstest können mindestens 9 von 10 Personen ohne
   Anleitung innerhalb von drei Minuten ein Konto für ein Kind einrichten.
 - **SC-002**: Bei Tests mit mindestens zehn Konten für unterschiedliche Kinder
@@ -167,20 +208,25 @@ angelegt werden kann.
 - **SC-004**: In allen geprüften Löschfällen bleibt ein abgebrochener Vorgang
   folgenlos; ein bestätigter Vorgang entfernt das ausgewählte Konto dauerhaft
   und erlaubt anschließend eine Neueinrichtung für dieses Kind.
-- **SC-005**: Bei vergrößerter Android-Schrift können mindestens 9 von 10
+- **SC-005**: Bei vergrößerter Systemschrift können mindestens 9 von 10
   Testpersonen Kind, Schule, Speichern und Löschen eindeutig erkennen;
   Passwörter sind in keiner Kontoübersicht oder Löschbestätigung sichtbar.
+- **SC-006**: Nach einem unterstützten Android-Update bleiben bei mindestens zehn
+  synthetisch vorbereiteten Konten 100 % der Zuordnungen und Zugangsdaten erhalten.
+  Unterbrechungen an jedem definierten Übernahmeschritt führen nach erneutem Start
+  zu keinem Datenverlust oder Duplikat; ein danach gelöschtes Konto bleibt entfernt.
 
 ## Assumptions
 
-- Die bestätigte Vorgabe ist genau ein aktives Schulkonto je Kind. Sie ersetzt
-  für dieses Feature die ältere Feature-Liste, die mehrere Konten pro Kind vorsah.
+- Die bestätigte Vorgabe ist genau ein aktives Schulkonto je Kind und gilt
+  unverändert für Android und iOS.
 - Die App ist für die private Nutzung auf einem einzelnen Handy gedacht.
 - Die Eingabe des Kindernamens dient der lokalen Zuordnung. Für zwei Kinder mit
   gleichem Rufnamen werden unterscheidbare Bezeichnungen eingegeben.
 - Das Speichern prüft nur Vollständigkeit und unterstützte Schule, nicht die
   Gültigkeit der Zugangsdaten beim Register. Abgleich, Aufgaben, Termine,
   Mitteilungen und Benachrichtigungen sind spätere Features.
-- Bearbeiten eines bestehenden Kontos, Export, Import und geräteübergreifender
-  Abgleich gehören nicht zu diesem Feature. Ein falsches Konto kann gelöscht
-  und erneut angelegt werden.
+- Bearbeiten eines bestehenden Kontos, nutzerseitiger Export/Import und
+  geräteübergreifender Abgleich gehören nicht zu diesem Feature. Die lokale
+  technische Übernahme beim Android-App-Update gemäß FR-014 ist eingeschlossen.
+  Ein falsches Konto kann gelöscht und erneut angelegt werden.

@@ -1,0 +1,17 @@
+allprojects { project ->
+    project.afterEvaluate {
+        if (project.plugins.hasPlugin('com.android.application')) {
+            def required = { name ->
+                def value = System.getenv(name)
+                if (!value) throw new GradleException("Missing fixture signing configuration: " + name)
+                return value
+            }
+            project.android.signingConfigs.debug {
+                storeFile = new File(required('FAMILYHUB_TEST_KEYSTORE'))
+                storePassword = required('FAMILYHUB_TEST_STORE_PASSWORD')
+                keyAlias = required('FAMILYHUB_TEST_KEY_ALIAS')
+                keyPassword = required('FAMILYHUB_TEST_KEY_PASSWORD')
+            }
+        }
+    }
+}

@@ -1,0 +1,41 @@
+{
+  "androidInstrumentationTests": 7,
+  "storage": [
+    "fresh-marker-before-key",
+    "matching-provisioning-key-reused",
+    "foreign-provisioning-key-replaced",
+    "missing-provisioning-key-created",
+    "existing-db-key-missing",
+    "existing-db-key-wrong",
+    "existing-db-key-temporarily-locked",
+    "existing-db-marker-missing",
+    "corrupt-marker-preserved",
+    "ready-without-db-rejected",
+    "orphaned-wal-preserved",
+    "keychain-residue-without-files",
+    "sqlcipher-absent-fails-closed",
+    "unknown-schema-rejected",
+    "schema-rollback-preserves-accounts",
+    "crash-after-marker",
+    "crash-after-key",
+    "crash-after-db",
+    "crash-before-ready",
+    "crash-after-ready",
+    "unicode-identity-compatible"
+  ],
+  "legacy": [
+    "legacy-formats-1-2-3",
+    "legacy-unicode-and-long-values",
+    "legacy-empty-without-alias",
+    "legacy-missing-key-preserves-source",
+    "legacy-unknown-schema-preserves-source",
+    "legacy-unknown-format-preserves-source",
+    "legacy-child-key-conflict-preserves-source",
+    "legacy-before-import-commit",
+    "legacy-after-import-commit",
+    "legacy-after-source-deletion",
+    "legacy-after-alias-deletion",
+    "legacy-after-complete",
+    "legacy-deleted-account-never-reappears"
+  ]
+}
