@@ -442,3 +442,10 @@ erfolgreich. Installation auf dem Testgerät durch
 iOS-Preview mangels macOS/Xcode in dieser Umgebung nicht ausgeführt.
 **T032 bleibt offen; T033/T034 und nachfolgende sequenzielle Aufgaben wurden
 nicht vorgezogen.** Nachweise und Fortsetzung in verification-expo.md.
+
+Erneuter Installationsversuch nach Nutzerfreigabe erfolgreich. Preview startet
+ohne Metro bei ausgeschaltetem WLAN/mobilen Daten und besteht die Leerzustandsprüfung.
+Maestro bricht beim ersten Tippen mit fehlender `INJECT_EVENTS`-Berechtigung ab;
+noch keine Kontoanlage/Neustart-/Duplikatprüfung ausgeführt. Zusätzliche
+Xiaomi-Debugging-Freigabe angefragt, Netzwerkzustand anschließend wiederhergestellt.
+T032 bleibt offen; dieser Teilnachweis ersetzt den vollständigen Flow nicht.

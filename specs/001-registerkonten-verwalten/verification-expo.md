@@ -622,3 +622,33 @@ Stand vor dieser Nutzerentscheidung.
   acceptance work were not advanced. No full US1 or release acceptance is claimed.
 - No extension hooks are configured. The existing `feature/account-creation`
   branch is continued from current `main`; no push, remote merge or publication.
+
+### Android installation retry and offline startup (2026-11-04)
+
+- Following explicit user confirmation that the installation prompt had been
+  dismissed accidentally, retrying the same APK installation succeeded. No new
+  build or application reset was needed; the APK hash above still applies.
+- Wi-Fi and mobile data were both initially enabled (`1`); temporarily disabled
+  using `adb shell svc wifi disable` and `svc data disable`, and both settings
+  confirmed `0`. Metro ports 8081/8089 had no listener. Ran from `mobile/`:
+
+  ```bash
+  maestro --device 1b274288 test --format junit \
+    --output tests/artifacts/preview/android/create-account.xml \
+    --debug-output tests/artifacts/preview/android/debug .maestro/create-account.yaml
+  ```
+
+- Preview offline launch and the expected empty-state assertion **passed**.
+  The first tap on `account-add` failed because Android denied `INJECT_EVENTS`.
+  Maestro's terminal/JUnit message was only "Unknown error"; the local command
+  metadata identifies the input-permission denial. The 1/1 flow failed (exit 1);
+  no account was created and no restart/duplicate acceptance was reached.
+  This is a test-device input restriction, not evidence of account-creation failure.
+- Asked the user to enable the Xiaomi developer option for USB debugging security
+  settings before retrying; no attempt was made to grant privileged input permission
+  by bypassing the device's security controls. Wi-Fi and mobile data were restored
+  with `svc ... enable` and both confirmed `1` after the failed flow.
+- Local Maestro artifacts include a device-wide logcat; they remain in ignored
+  `mobile/tests/artifacts/` and are not versioned or used as sanitized evidence.
+  The evidence JSON above records only the relevant result and permission code.
+  T032 remains open for a successful complete Android flow and iOS Preview run.
