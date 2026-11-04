@@ -61,6 +61,17 @@ The standalone account-creation flow and platform execution instructions are in
 [.maestro/README.md](.maestro/README.md). It requires a fresh, isolated preview
 installation and disabled device networking; it never clears existing app data.
 Run the main `create-account.yaml` file, not the parameterized helper directory.
+For Android automation use `npm run test:preview:android -- --device emulator-5554`;
+the starter rejects physical devices before contacting ADB and checks emulator
+identity/readiness and offline settings. The personal phone is reserved for manual
+preview testing. No automated native/Maestro runs on that phone are authorized.
+
+For manual phone checks, launch the ARM64 preview normally without USB/debugging.
+Check field/button readability, school selection, keyboard and scrolling, saving
+synthetic credentials, duplicate rejection, and persistence after closing/reopening
+offline. Creation and a minimal list are available; deletion and full overview
+behavior are still pending. Record steps, expected/actual behavior and app/OS
+versions without real credentials. No automated test tooling is needed on the phone.
 
 Local Android requires a JDK and Android SDK. Local iOS requires macOS/Xcode.
 Store submission and EAS account setup are outside this implementation stage.

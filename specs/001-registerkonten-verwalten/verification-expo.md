@@ -713,3 +713,58 @@ Stand vor dieser Nutzerentscheidung.
 - Documentation-only follow-up validated with JSON parsing and `git diff --check`.
   Earlier type/unit/host/native/build results above are unchanged; none substitutes
   for the incomplete end-to-end run. No full story/platform/release acceptance.
+
+### Emulator-only continuation and x86_64 Preview (2026-11-04)
+
+- User clarified that the personal phone should retain the preview for **manual**
+  operation/display testing, with no automated Maestro/native/device tests. Recorded
+  this in AGENTS.md, mobile README, and tasks. The phone was not contacted in this
+  continuation. The existing feature/account-creation branch and clean prior work
+  were retained. Requirements checklist remains 16/16 complete; no extension hooks.
+- Added `npm run test:preview:android -- --device emulator-5554`. Its new wrapper
+  rejects physical/missing/malformed targets before any ADB invocation; then
+  checks `ro.kernel.qemu=1`, completed boot, installed product package and disabled
+  Wi-Fi/mobile data using only explicit `-s emulator-PORT` read commands.
+  It does not discover devices, install/reset apps, change networking or retry.
+  Product package presence alone does not certify the build profile: the documented
+  precondition is installation of the dedicated preview APK, plus stopped Metro.
+  Maestro runs locally with analytics disabled and its existing driver reused.
+  Each run has a unique timestamp/PID artifact directory and a 45-minute command
+  timeout. Nonzero exit, termination or missing full report remains incomplete.
+- `npm run test:host` passed **13 checks** (7 existing orchestration checks and
+  6 new emulator-guard checks). A separate CLI negative probe with a synthetic
+  physical-device identifier exited 1 with the expected emulator-only message,
+  without invoking ADB. These host checks do not represent native or Preview UI
+  acceptance. No product logic changed; existing app tests were not rerun needlessly.
+- Emulator feasibility: outside the sandbox, Android Emulator 37.2.12.0
+  `-accel-check` returned exit 3, `KVM requires a CPU that supports vmx or svm`.
+  The installed `Medium_Phone_API_37.0` x86_64 AVD was tried with
+  `-read-only -no-window -no-audio -no-snapshot -accel off -gpu swiftshader -port 5560`.
+  Only emulator-5560 was queried. It remained ADB-offline at both boot checks.
+  Stopped this diagnostic instance using its emulator console; snapshots were
+  disabled, no saved AVD data was replaced. The emulator exited 139 during teardown
+  after the requested stop; no successful boot or runtime result is claimed.
+  Google documents unaccelerated operation as very slow/unsupported in the
+  [emulator command-line reference](https://developer.android.com/studio/run/emulator-commandline).
+  A supported host emulator environment is still needed; macOS/Xcode is also
+  unavailable in this session for the outstanding iOS Preview run.
+- Built the unchanged product sources for an x86_64 host emulator using:
+
+  ```bash
+  FAMILYHUB_BUILD_PROFILE=preview ./gradlew :app:assembleRelease -PreactNativeArchitectures=x86_64 --console=plain
+  ```
+
+  From mobile/android with Node 22 and ANDROID_HOME supplied. **Build passed in
+  4m58s**, 896 tasks (63 executed, 833 up-to-date). APK ZIP inspection confirms only
+  `lib/x86_64/` libraries and embedded `assets/index.android.bundle`.
+  Preserved the existing ARM64 preview separately before building; no installation
+  was attempted on the personal phone or a non-ready emulator.
+
+  | Purpose | Local ignored artifact | SHA-256 |
+  | --- | --- | --- |
+  | Android x86_64 emulator | `mobile/tests/artifacts/preview/android/x86_64/app-release.apk` | `2c4766964ef143264550200ce68ff571060a110ff255b1e25880ab2090162f7f` |
+  | Manual ARM64 phone testing | `mobile/tests/artifacts/preview/android/arm64-v8a/app-release.apk` | `0f5968d417b2f155601dc5da8ad134aef61466eb0ea2e8672793ea815baf24dd` |
+
+- **T032 remains unchecked** for actual complete Android/iOS Preview execution.
+  No downstream sequential gates advanced. Pending host-environment information
+  does not authorize phone automation or imply successful runtime acceptance.

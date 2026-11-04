@@ -45,6 +45,28 @@ Einsatz des persönlichen Geräts braucht eine neue ausdrückliche Beauftragung.
 
 ## Ausführung aus `mobile/`
 
+Automatisierte Android-Läufe verwenden einen explizit gewählten Emulator.
+Das persönliche Handy erhält ausschließlich Preview-Versionen für manuelle Tests.
+`npm run test:preview:android -- --device emulator-5554` prüft vor dem ersten
+Maestro-Aufruf die Emulatoridentität, den abgeschlossenen Start, das vorhandene
+Produktpaket und ausgeschaltetes WLAN/mobile Daten. Physische Seriennummern
+werden bereits vor dem ersten ADB-Aufruf abgelehnt. Der Starter installiert oder
+löscht nichts, ändert keine Netzwerkwerte und wiederholt keine Tests automatisch.
+Das vorhandene Produktpaket allein belegt nicht das Buildprofil; deshalb nur die
+explizit als `preview` gebaute APK installieren. Metro separat beenden.
+
+Unter Linux/macOS müssen Node 22, `adb` und `maestro` im PATH liegen; alternativ
+`ANDROID_HOME` und `FAMILYHUB_MAESTRO` auf die lokalen Werkzeuge setzen.
+Die Laufzeitgrenze des Starters beträgt 45 Minuten. Ein abgebrochener Prozess
+oder fehlender vollständiger JUnit-Bericht gilt weiterhin nicht als Abnahme.
+Jeder Lauf schreibt in einen eigenen Zeitstempelordner unter
+`tests/artifacts/preview/android/`, damit ältere Berichte nicht als neues Ergebnis
+verwechselt werden. Der konkrete Pfad wird vor dem Maestro-Aufruf ausgegeben.
+
+Für einen x86_64-Emulator statt des folgenden ARM64-Buildparameters
+`-PreactNativeArchitectures=x86_64` verwenden. Die ARM64-APK ist für das physische
+Handy zur manuellen Bedienungsprüfung bestimmt; beide Artefakte getrennt halten.
+
 Android lokal bauen (Node 22, JDK und Android SDK erforderlich):
 
 ```bash

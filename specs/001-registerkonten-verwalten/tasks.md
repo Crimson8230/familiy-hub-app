@@ -476,3 +476,24 @@ Daten auf ursprünglichen Zustand zurückgesetzt und geprüft; beide Maestro-Hil
 deinstalliert und Entfernung geprüft, drei erzeugte geräteweite Logcat-Dateien
 lokal entfernt. Offene Android-Prüfung künftig auf Emulator/separatem Testgerät;
 iOS-Preview bleibt ebenfalls offen.
+
+### Fortsetzung mit Emulator und manueller Handy-Preview (2026-11-04)
+
+Nutzerpräferenz präzisiert und in AGENTS.md festgehalten: Das persönliche Handy
+bleibt für manuelle Bedienungs-/Darstellungsprüfungen vorgesehen; keine
+automatisierten Maestro-/nativen Gerätetests. Neuer Starter
+`mobile/tests/tools/run-android-preview.mjs` verlangt eine explizite
+Emulator-Seriennummer und verifiziert Emulatoridentität, Bootstatus, vorhandenes
+Produktpaket und ausgeschaltete Datenverbindungen. Physische Geräte werden vor
+jedem ADB-Zugriff abgelehnt. Keine Installation, Resets, Netzwerkänderungen oder
+automatischen Wiederholungen; getrennte Berichtordner je Lauf. Sechs neue
+Schutzprüfungen plus sieben bestehende Hostprüfungen bestanden; CLI-Negativprobe
+weist eine physische Kennung vor Gerätezugriff ab.
+
+Separater Preview-Release-Build für x86_64 erfolgreich, eingebettetes Bundle und
+ABI geprüft. ARM64-APK für manuelle Tests separat erhalten. Die Linux-VM meldet
+bei `-accel-check` fehlendes vmx/svm/KVM; isolierter Read-only-Softwarestart des
+vorhandenen API-37-Emulators erreichte keinen testbereiten ADB-Zustand und wurde
+beendet. Kein Test am persönlichen Handy ausgeführt. **T032 bleibt offen**, bis
+Android-Host-Emulator und iOS-Simulator tatsächlich erfolgreich geprüft sind;
+T033/T034 nicht vorgezogen. Details und Artefaktnachweise in verification-expo.md.
