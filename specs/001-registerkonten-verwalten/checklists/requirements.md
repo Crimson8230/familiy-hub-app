@@ -1,4 +1,4 @@
-# Specification Quality Checklist: Registerkonten auf Android verwalten
+# Specification Quality Checklist: Registerkonten auf Android und iOS verwalten
 
 **Purpose**: Vollständigkeit und Qualität der Spezifikation vor der Planung prüfen
 **Created**: 2026-10-24
@@ -33,5 +33,6 @@
 
 - Die lokale Datenbank ist eine ausdrückliche Vorgabe des Nutzers; die
   Spezifikation legt weder ein Datenbanksystem noch einen Implementierungsweg fest.
-- Die Ein-Konto-Regel folgt der aktuellen Formulierung des Nutzers und ist in den
-  Annahmen als Abweichung von der älteren Feature-Liste dokumentiert.
+- Die bestätigte Ein-Konto-Regel gilt auf beiden Plattformen. Die lokale
+  technische Übernahme beim Android-App-Update ist von nutzerseitigem Import
+  und Gerätewechsel abgegrenzt; FR-014/FR-015 und SC-006 definieren ihre Abnahme.

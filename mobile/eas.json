@@ -1,0 +1,41 @@
+{
+  "cli": {
+    "version": ">=16.0.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "FAMILYHUB_BUILD_PROFILE": "development"
+      }
+    },
+    "native-test": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "FAMILYHUB_BUILD_PROFILE": "native-test"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "FAMILYHUB_BUILD_PROFILE": "preview"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "upgrade-test": {
+      "distribution": "internal",
+      "env": {
+        "FAMILYHUB_BUILD_PROFILE": "upgrade-test"
+      },
+      "android": {
+        "buildType": "apk",
+        "credentialsSource": "local"
+      }
+    }
+  }
+}

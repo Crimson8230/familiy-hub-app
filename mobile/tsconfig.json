@@ -1,0 +1,20 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "modules/**/*.ts",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
+  ],
+  "exclude": [
+    "tests/fixtures/legacy-app",
+    "android",
+    "ios",
+    "node_modules"
+  ]
+}

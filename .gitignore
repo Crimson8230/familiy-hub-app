@@ -12,3 +12,14 @@ local.properties
 Thumbs.db
 *.tmp
 *.swp
+node_modules/
+dist/
+coverage/
+mobile/.expo/
+mobile/android/
+mobile/ios/
+mobile/tests/artifacts/
+*.jks
+*.keystore
+credentials.json
+.vscode/

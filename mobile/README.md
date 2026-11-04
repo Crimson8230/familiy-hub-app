@@ -1,0 +1,66 @@
+# Family Hub mobile
+
+Expo SDK 58 / React Native 0.88 / TypeScript for Android and iOS.
+Current status: setup and secure-storage foundation implemented (T001–T022).
+Android foundation checkpoint T023 passed; account create/list/delete UI is pending.
+iOS foundation acceptance is deferred to T087 after T031 and before T032/T034;
+Android story implementation may continue. Full platform/release acceptance stays gated.
+As of 2026-11-04, the legacy read-only snapshot defect is fixed and all 34 Android
+TS scenarios and all 7 Kotlin tests pass together in the complete Android run,
+including both failure probes and 10 process restarts. iOS verification is outstanding.
+See `../specs/001-registerkonten-verwalten/verification-expo.md` for executed checks and blockers.
+The original Kotlin application remains under `../app/` until all replacement gates pass.
+
+## Development
+
+Use Node 22 (`nvm use`), then `npm ci` and `npm run typecheck`.
+`npm test` runs component/unit suites only. Native integration requires a dedicated binary;
+Expo Go and Jest mocks are not evidence for SQLCipher or platform key storage.
+`npm run test:host` checks host result validation. `npm run test:native -- --platform android`
+(or `ios`) builds/runs the dedicated test host; select a device with `--device SERIAL` or UDID.
+The Android runner requires an online, isolated device; iOS currently uses a booted Simulator
+on macOS. Native test reports require all expected cases, not merely a nonempty result.
+Android builds target the selected device's primary ABI. Full runs assemble the
+host and instrumentation APK once, compare their SHA-256 hashes with installed
+APKs, and install only changed/missing binaries. Kotlin tests and their failure
+probe run directly through AndroidJUnitRunner over ADB; the APKs remain installed.
+An installation prompt may still appear when a binary actually changes.
+
+For normal TypeScript iteration, use the existing test app without Gradle,
+prebuild, or installation:
+
+```bash
+npm run test:native -- --platform android --device SERIAL --installed
+npm run test:native -- --platform android --device SERIAL --installed --case legacy-formats-1-2-3
+```
+
+`--case` accepts an exact name from `tests/native/scenarios.json` and requires
+`--installed`. Selection survives real process restarts. These are diagnostic
+runs: reports use `android-diagnostic-*.json`, mark `diagnostic: true` and
+`complete: false`, and do not replace full Android/iOS acceptance. Exit 0 means
+only that the selected diagnostic scope passed. Secrets and raw errors are excluded.
+Keep the phone connected and unlocked; JS is served by Metro.
+
+After native dependencies, plugins or profile configuration change, run the
+normal command to regenerate/build/install. `--reuse-native-project` skips only
+project generation for an already generated Android native-test project; it still
+builds and executes both native test groups. Do not use it after native config changes.
+
+Select a profile using `FAMILYHUB_BUILD_PROFILE`: `development` (default),
+`native-test`, `preview`, or `upgrade-test`. EAS profiles set it explicitly.
+For example: `FAMILYHUB_BUILD_PROFILE=development npx expo run:android`.
+A native dependency/configuration or profile change requires `npx expo prebuild --no-install`
+with the same profile followed by a new native build.
+Preview embeds its JS bundle so offline startup does not depend on Metro.
+
+Local Android requires a JDK and Android SDK. Local iOS requires macOS/Xcode.
+Store submission and EAS account setup are outside this implementation stage.
+
+## Legacy fixture
+
+`bash tests/tools/prepare-legacy-fixtures.sh --verify-only` checks the frozen original sources.
+For APK builds supply JDK 21, SDK 36/Build Tools 36.1.0 and an external synthetic-test
+keystore through the `FAMILYHUB_TEST_*` variables named in the script. Never use production
+signing credentials or real register data for fixture preparation.
+
+The active design and checks are under `../specs/001-registerkonten-verwalten/`.

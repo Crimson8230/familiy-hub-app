@@ -4,27 +4,30 @@
 **App-Name:** Family Hub  
 **Repository-Name bei Auslagerung:** `family-hub-app`
 
-Die Android-App übernimmt die fachliche Logik des bestehenden Projekts, nicht
+Die App für Android und iOS übernimmt die fachliche Logik des bestehenden Projekts, nicht
 dessen Flask-Oberfläche oder Docker-Betrieb. Die Features sind in der Reihenfolge
 angeordnet, in der sie für eine nutzbare erste Version gebraucht werden.
+Der bestehende Dateiname bleibt für vorhandene Verweise erhalten.
 
 ## MVP
 
-### F01 – Android-Grundgerüst und lokale Datenhaltung
+### F01 – App-Grundgerüst und lokale Datenhaltung
 
-Native Android-App mit Startbildschirm, Navigation und lokaler Datenbank für
+App für Android und iOS mit Startbildschirm, Navigation und lokaler Datenbank für
 Registerkonten, Aufgaben, Termine, Mitteilungen und Abgleichstatus. Die Übersicht
 zeigt bereits gespeicherte Daten auch ohne Internet. Die Datenbank hat
 nachvollziehbare Schema-Migrationen.
 
 **Fertig, wenn:** Die App startet ohne Server; nach Neustart und offline sind
-gespeicherte Einträge noch lesbar.
+gespeicherte Einträge noch lesbar. Dies wird auf Android und iOS geprüft.
 
 ### F02 – Registerkonten verwalten
 
-Pro Kind ein oder mehrere Konten für Grundschule oder Mittelschule St. Martin
+Pro Kind genau ein Konto für Grundschule oder Mittelschule St. Martin
 anlegen und löschen. Zugangsdaten werden lokal geschützt gespeichert. Die App
 zeigt Schule, Kind, letzten erfolgreichen Abgleich und den letzten Fehler.
+Die Ein-Konto-Regel entspricht der bestätigten Klärung in
+`specs/001-registerkonten-verwalten/spec.md`.
 
 **Fertig, wenn:** Ein angelegtes Konto nach App-Neustart vorhanden ist; beim
 Löschen verschwinden Zugangsdaten und zugehörige Einträge.
@@ -69,8 +72,10 @@ Sperrbildschirm datensparsam halten. Benachrichtigungsberechtigung erklären
 und ihre Ablehnung respektieren.
 
 **Fertig, wenn:** Eine tägliche Übersicht ohne Family-Hub-Server und ohne
-E-Mail ankommt, sobald Android die geplante Hintergrundarbeit ausführt; bei
-Fehlern wird kein aktueller Datenstand vorgetäuscht.
+E-Mail ankommt, sobald das jeweilige Betriebssystem die geplante Hintergrundarbeit
+ausführt; bei Fehlern wird kein aktueller Datenstand vorgetäuscht. Zeitpunkt und
+Ausführung unterliegen den Bedingungen von Android beziehungsweise iOS; eine
+tägliche oder minutengenaue Ausführung wird nicht garantiert.
 
 ### F07 – Verifikation mit echten Registerkonten
 
@@ -86,7 +91,8 @@ oder eine nicht unterstützte Antwort ausdrücklich als Fehler angezeigt wird.
 ### F08 – Bedienung und Zugänglichkeit
 
 Filter nach Kind, gut lesbare Detailansichten, Leerzustände, sichtbarer
-Offline-Status sowie skalierbare Schrift und verständliche Beschriftungen.
+Offline-Status sowie skalierbare Schrift und verständliche Beschriftungen auf
+Android und iOS.
 
 ### F09 – Sicherung und Gerätewechsel
 
@@ -107,6 +113,12 @@ Mitteilungen angezeigt werden. Doppelte Benachrichtigungen vermeiden.
 - E-Mail-Bericht und Gmail-App-Passwort
 - Schreiben oder Abhaken im Digitalen Register
 - Garantiert minutengenaue Hintergrundaktualisierung
+
+## Plattformübergreifende Verifikation
+
+Die Fertig-Kriterien von F01 bis F07 gelten für Android und iOS und werden auf
+beiden Plattformen geprüft. Bisherige Android-Nachweise bleiben Nachweise der
+bisherigen Implementierung; sie belegen keine iOS-Unterstützung.
 
 ## Spec-Kit-Reihenfolge
 

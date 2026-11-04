@@ -1,118 +1,189 @@
-# Research: Registerkonten auf Android verwalten
+# Research: Umstellung der Kontenverwaltung auf Expo
 
-**Date**: 2026-10-24
+**Datum**: 2026-10-24. Entscheidungen für die Planung; noch keine Builds ausgeführt.
+Die Primärquellen wurden für diesen Plan geprüft.
 
-Die Recherche bezieht sich auf das erste, rein lokale Android-Feature. Externe
-Registerendpunkte werden noch nicht angesprochen.
+## 1. Plattform und Versionen
 
-## Native App und Plattformversion
+**Decision**: Expo SDK 58 mit React Native 0.88 und React 19.3; Node 22 LTS ab
+22.13, TypeScript strict. Android 7+ und iOS 16.4+; native Abhängigkeiten über
+`expo install` passend zum SDK auflösen und mit npm-Lockfile fixieren.
 
-**Decision**: Kotlin mit Jetpack Compose in einem Android-App-Modul;
-`minSdk 23`, `compileSdk 36`, `targetSdk 36`. Kotlin- und Gradle-Versionen werden
-beim Anlegen des Projekts aus einer offiziell kompatiblen stabilen Kombination
-festgeschrieben; keine Vorabversionen.
+**Rationale**: Gemeinsame Oberfläche und Fachlogik erfüllen Constitution 2.0.0.
+Die aktuelle SDK-Matrix bestimmt zusammenpassende Versionen und Plattformuntergrenzen.
+Android API 23 wird gegenüber der alten Kotlin-App aufgegeben; dort keine
+Deinstallation oder Datenlöschung veranlassen.
 
-**Rationale**: Room 2.8.5 benötigt mindestens API 23. API 36 erfüllt die
-aktuelle Play-Zielversion für neue Handy-Apps. Compose bietet native
-Android-Oberflächen ohne Web-Laufzeit. Eine konkrete Kotlin-Patchversion ohne
-passendes Android Gradle Plugin festzulegen würde eine Scheingenauigkeit erzeugen.
+**Alternatives considered**: Kotlin-only erfüllt iOS nicht; getrennte native
+Apps verdoppeln die Implementierung; ältere SDKs nur für API 23 erhalten keine
+Planungspräferenz. Unabhängig gewählte React-/React-Native-Versionen vermeiden.
 
-**Alternatives considered**: WebView/Flask und eigener Server widersprechen der
-Constitution; `minSdk 21` ist mit der gewählten Room-Version nicht vereinbar;
-eine Multiplattform-Architektur bringt für dieses Android-only-Feature keinen
-Mehrwert.
+Quelle: [Expo SDK-Matrix](https://docs.expo.dev/versions/latest/).
 
-**Sources**: [Compose setup](https://developer.android.com/develop/ui/compose/setup),
-[Room releases](https://developer.android.com/jetpack/androidx/releases/room),
-[Google Play target API requirements](https://developer.android.com/google/play/requirements/target-sdk),
-[Android Gradle Plugin compatibility](https://developer.android.com/build/releases/about-agp),
-[Kotlin releases](https://kotlinlang.org/docs/releases.html).
+## 2. SQLite und sicherer Plattformzugriff
 
-## Lokale Datenbank und Migrationen
+**Decision**: SQLCipher über expo-sqlite auf beiden Plattformen, SecureStore nur
+für einen kleinen zufälligen Datenbankschlüssel. SQLCipher-Unterstützung vor jedem
+ersten Datenzugriff über nichtleeres `PRAGMA cipher_version` nachweisen, Schlüssel
+setzen, dann erst Schema lesen. Prepared Statements für Nutzereingaben;
+serialisierte exklusive Transaktionen auf einer bereits geschlüsselten Verbindung
+für Schreiboperationen und Migrationen.
 
-**Decision**: Room 2.8.5 über SQLite mit einer `school_accounts`-Tabelle in
-Schema-Version 1. Ein eindeutiger Index auf `child_key` erzwingt genau ein Konto
-je Kind auch bei schnellen oder mehrfachen Speicherversuchen. Room-Schemas
-werden exportiert und versioniert; spätere Änderungen verwenden explizite,
-getestete Migrationen, keine destruktive Rückfallmigration.
+**Implementierungsbefund**: In expo-sqlite 58.0.14 erzeugt
+`withExclusiveTransactionAsync` über `Transaction.createAsync` eine weitere
+Verbindung und übernimmt kein vorheriges `PRAGMA key`. Der App-Adapter öffnet
+daher pro Operation eine eigene Verbindung mit `useNewConnection: true`, prüft
+SQLCipher, setzt den Key und nutzt erst danach `BEGIN EXCLUSIVE`/Commit/Rollback.
+Alle Abfragen bleiben in derselben seriellen Warteschlange. Der native Wrapper
+wird nicht für ungeschlüsselte Transaktionsverbindungen verwendet. Die Option
+unterbindet zugleich die Registrierung beim SQLite-Devtools-Inspektor.
+Quelle: installierter, über Lockfile fixierter Code unter
+`mobile/node_modules/expo-sqlite/src/SQLiteDatabase.ts`.
 
-**Rationale**: Room bietet eine überprüfbare SQLite-Schicht mit eindeutigen
-Indizes, Fremdschlüsseln und Transaktionen. Die normalisierte Kinderkennung
-entspricht der bestätigten Ein-Konto-Regel. Ein erstes Schema kann sofort
-versioniert werden, auch wenn von Version 0 keine Daten migriert werden müssen.
+**Rationale**: Fachliche Entscheidung dieses Plans: Konto und Zugangsdaten liegen
+in derselben verschlüsselten Transaktion. Anlage/Löschung brauchen dadurch keine
+Kompensation zwischen Datenbank und Keychain. Zugangsstrings können größer als die
+plattformabhängigen SecureStore-Wertegrenzen sein. Chiffrate werden nicht mehr
+manuell im UI-/Repository-Code erzeugt.
 
-**Alternatives considered**: Freies JSON/Preferences unterstützt die geforderte
-lokale Datenbank und künftige Beziehungen schlechter; rohes SQLite verlagert
-Validierung und Migrationen in mehr eigenen Code; Room 3 bringt hier keinen
-Vorteil gegenüber der etablierten Android-only-Linie.
+**Alternatives considered**: Unverschlüsseltes SQLite/AsyncStorage mit Klartext
+verletzt den Datenschutz. Je Konto ein SecureStore-Eintrag macht eine echte atomare
+Änderung mit SQLite unmöglich. Eigene AES-Implementierung in JavaScript vergrößert
+die Sicherheitsoberfläche ohne fachlichen Nutzen.
 
-**Sources**: [Room entities and unique indices](https://developer.android.com/training/data-storage/room/defining-data),
-[Room migration guide](https://developer.android.com/training/data-storage/room/migrating-db-versions),
-[Room releases](https://developer.android.com/jetpack/androidx/releases/room),
-[Room 3 releases](https://developer.android.com/jetpack/androidx/releases/room3).
+Quellen: [Expo SQLite/SQLCipher](https://docs.expo.dev/versions/latest/sdk/sqlite/),
+[SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/).
 
-## Geschützte Zugangsdaten und Backup
+## 3. Schlüssel, Sicherungen und Wiederherstellung
 
-**Decision**: Benutzername und Passwort werden zusammen als versionierter
-Credentials-Inhalt mit AES-GCM verschlüsselt. Der nicht exportierbare AES-Schlüssel
-liegt im Android Keystore. Der Datensatz speichert nur Chiffrat und zufälliges IV,
-nie Klartext-Zugangsdaten. Die Kontendatenbank wird ausdrücklich aus Cloud-Backup
-und Geräteübertragung ausgeschlossen; Backup-Regeln werden für Android 12+ und
-ältere unterstützte Versionen gesetzt. Ein späterer Gerätewechsel braucht eine
-eigene Spezifikation.
+**Decision**: Kein biometrischer Prompt für Kontenoperationen. iOS-Schlüssel nur
+auf diesem Gerät und im entsperrten Zustand verfügbar. Das private Verzeichnis
+mit Datenbank, Journal/WAL/SHM, Installationsmarker und temporären Dateien wird aus
+Backups ausgeschlossen. Android: `allowBackup=false` plus explizite Ausschlüsse
+für Cloud- und Geräteübertragung, einschließlich SecureStore-Preferences.
+iOS: lokales Expo-Modul setzt und überprüft `isExcludedFromBackup` am Verzeichnis
+und nach Dateioperationen. Kein automatischer Export und kein Gerätewechsel.
 
-**Rationale**: Ohne Keystore-Schlüssel wären wiederhergestellte Chiffrate auf
-einem anderen Gerät unbrauchbar. Standard-Backup kann Datenbanken einschließen;
-`allowBackup=false` allein deckt nicht alle Übertragungswege auf Android 12+ ab.
-Verschlüsselung und Backup-Ausschluss schützen Zugangsdaten auch im Ruhemodus.
+**Rationale**: Betriebsentscheidung: Daten und Schlüssel sollen nicht getrennt
+wiederhergestellt werden. SecureStore kann nach iOS-Neuinstallation alte Werte
+enthalten. Ohne Datenbank werden alte bekannte Schlüssel nur nach eindeutigem
+Neuinstallationsbefund ersetzt; mit vorhandener Datenbank bleibt ein fehlender
+oder unlesbarer Schlüssel ein sichtbarer Fehler, kein Anlass zur Neuerzeugung.
+Für F06 muss die dann nötige Verfügbarkeit bei gesperrtem Gerät gesondert geplant
+und auf beiden Plattformen geprüft werden.
 
-**Alternatives considered**: Klartext in Room verletzt die Constitution;
-unverschlüsselter Export ist ausgeschlossen; eine vollständig verschlüsselte
-Datenbank ist für die hier sichtbaren Kind-/Schulmetadaten schwerer zu migrieren
-und ersetzt die Backup-Entscheidung nicht.
+**Alternatives considered**: Schlüssel in der Datenbank schützt sie nicht;
+Biometriepflicht behindert Offline-Bedienung und spätere Hintergrundarbeit;
+SecureStore allein garantiert keine wiederherstellbare Sicherung.
 
-**Sources**: [Android Keystore](https://developer.android.com/privacy-and-security/keystore),
-[Android cryptography](https://developer.android.com/privacy-and-security/cryptography),
-[Auto Backup and data extraction rules](https://developer.android.com/identity/data/autobackup).
+Quellen: [SecureStore-Lebenszyklus und Backup](https://docs.expo.dev/versions/latest/sdk/securestore/),
+[Apple Backup-Ausschluss](https://developer.apple.com/documentation/foundation/urlresourcekey/isexcludedfrombackupkey).
 
-## Atomare Anlage und Löschung
+## 4. Bestehende Android-Konten
 
-**Decision**: Nach erfolgreicher Verschlüsselung erfolgt das Einfügen von
-Metadaten und Chiffrat als eine Datenbankoperation. Die eindeutige Kinderkennung
-fängt auch konkurrierende Versuche ab. Löschen entfernt die Kontenzeile und
-später zugeordnete Einträge in einer Room-Transaktion mit Fremdschlüssel-Kaskade.
-Bei einem Datenbankfehler bleibt der vorherige sichtbare Zustand erhalten; bei
-Keystore-Fehlern beginnt keine Speicherung.
+**Decision**: Verlustfreies Update auf demselben unterstützten Android-Gerät
+über kleines Kotlin-Expo-Modul, welches die Room-Version 1 und Chiffratformate
+1–3 liest. Ziel ist eine neue verschlüsselte Datei; die alte Datei wird niemals
+als vermeintlich leere Expo-Datenbank geöffnet. Ablauf siehe Migrationsvertrag.
 
-**Rationale**: Chiffrat und Kontometadaten können so nicht auseinanderfallen.
-Die künftige Zuordnung von Registereinträgen über eine stabile Konto-ID erlaubt
-das vollständige Entfernen abhängiger Daten.
+**Rationale**: Der vorhandene Schlüssel `family_hub_register_credentials_v1` ist
+nicht exportierbar. Ein Update mit gleicher Identität und Signatur kann ihn im
+alten App-Sandbox-Kontext zum Entschlüsseln verwenden. Eine neue Installation mit
+anderer Kennung kann dies nicht. Ein CSV-/Klartext-Export wäre unnötig riskant und
+Export/Import gehört laut Constitution nicht zu diesem Feature.
 
-**Alternatives considered**: Getrennte Speicherung in Preferences und Datenbank
-würde Zwei-Speicher-Transaktionen erfordern und nach Abstürzen Inkonsistenzen
-ermöglichen.
+**Alternatives considered**: Alle Konten neu eingeben zu lassen wäre bei einem
+gewöhnlichen Update ein vermeidbarer Datenverlust. Bloßes Kopieren der Room-Datei
+macht weder ihre Zugangsdaten lesbar noch setzt es SQLCipher-Verschlüsselung um.
+Ein vollständiges Weiterführen der alten Kotlin-App würde die Fachlogik duplizieren.
 
-**Sources**: [Room transactions](https://developer.android.com/reference/kotlin/androidx/room/RoomDatabase),
-[Room foreign keys](https://developer.android.com/reference/androidx/room/ForeignKey).
+Quellen: vorhandene `app/src/main/java/com/familyhub/app/security/CredentialsCipher.kt`,
+`FamilyHubApplication.kt`, `FamilyHubDatabase.kt` und `SchoolAccountEntity.kt`;
+[Expo Modules API](https://docs.expo.dev/modules/overview/).
 
-## Oberfläche und Verifikation
+## 5. Eigene Builds und Nachweise
 
-**Decision**: Eine Compose-Kontenübersicht mit Leerzustand, Anlegeformular und
-Löschbestätigung. Für Passwort-Eingabe wird ein geschütztes Textfeld verwendet;
-nach dem Speichern zeigt die UI nur Kind und Schule. Die UI exponiert eindeutige
-Beschriftungen und Semantik für größere Schrift und UI-Tests. JUnit prüft
-Namensnormalisierung; Instrumentierung prüft Room/Keystore/Offline-Neustart und
-die Bedienabläufe.
+**Decision**: Development Builds mit expo-dev-client; zusätzlich eigenständig
+startender Preview-Build mit eingebettetem JS-Bundle für Offline-Neustart und
+Performanz. Android lokal; iOS lokal auf macOS oder optional EAS. Keine automatische
+Veröffentlichung, kein Push-/Backend-Dienst erforderlich. Expo Go liefert keine
+Abnahme für SQLCipher oder eigene Module.
 
-**Rationale**: Die Spec verlangt wenige lokale Abläufe, keine Navigation zu
-externen Diensten. Compose-Semantik verbindet Zugänglichkeit und überprüfbare
-Bedienzustände. Der geschützte Passwort-Eingabetyp vermeidet sichtbare oder
-kopierbare Passwortdarstellung.
+**Rationale**: Native Konfiguration wird erst im eigenen Binary wirksam; ein
+Metro-abhängiger Entwicklungsstart allein beweist keine Offline-Startfähigkeit.
+Jest/Komponententests werden durch native Speicher-, Update- und Gerätetests ergänzt.
 
-**Alternatives considered**: Ein frei sichtbares Passwortfeld oder die Anzeige
-gespeicherter Zugangsdaten verletzen die Spec; reine Unit-Tests könnten
-Keystore, SQLite-Persistenz und Android-Schriftvergrößerung nicht belegen.
+**Alternatives considered**: Nur Expo Go oder nur gemockte Speichertests würden
+native Fehler und Backup-Verhalten übersehen. Store-Veröffentlichung ist kein
+Bestandteil der Kontenverwaltung.
 
-**Sources**: [Compose text input](https://developer.android.com/develop/ui/compose/text/user-input),
-[Compose semantics](https://developer.android.com/develop/ui/compose/accessibility/semantics),
-[Compose accessibility testing](https://developer.android.com/develop/ui/compose/accessibility/testing).
+Quelle: [Expo Development Builds](https://docs.expo.dev/develop/development-builds/introduction/).
+
+## 6. Eindeutiger Bootstrap nach Unterbrechungen (A1)
+
+**Decision**: Installationsmarker mit Kennung und `provisioning` atomar VOR
+Key-Schreiben anlegen; Key in SecureStore als kleinen versionierten Datensatz
+mit derselben Kennung speichern. Ein vorhandener Zielbestand hat Vorrang und
+wird nie aufgrund eines fehlenden Keys überschrieben. Nach DB-/Schema-Prüfung
+Marker auf `ready` setzen, erst danach Konten schreiben oder Altdaten importieren.
+Priorisierte Befunde und Absturzfälle stehen in `data-model.md`.
+
+**Rationale**: Eigene Designentscheidung: Installationskennung unterscheidet
+Keychain-Reste von einem zur begonnenen Initialisierung gehörenden Key.
+Ein fertiger Marker ohne DB ist ein Fehler, kein Neuinstallationssignal.
+
+**Alternatives considered**: „Key vorhanden“ allein kann eine abgebrochene
+Initialisierung nicht von iOS-Keychain-Resten unterscheiden. Key vor Marker zu
+schreiben erzeugt ein vermeidbares Fenster ohne dauerhafte Zuordnung.
+
+Plattformgrundlage: [SecureStore-Lebenszyklus](https://docs.expo.dev/versions/latest/sdk/securestore/).
+Die Markerzustände sind ein App-Vertrag und keine Zusage des Expo-SDK.
+
+## 7. Tatsächliche Kotlin-Testausführung (U1)
+
+**Decision**: Test-Config-Plugin bindet die versionierten androidTest-Quellen des
+Legacy-Moduls in das SourceSet der erzeugten Host-App ein; AndroidJUnitRunner
+führt sie über `:app:connectedDebugAndroidTest` aus. Der Hostrunner muss Kotlin-
+und TS-Ergebnisse separat auswerten; fehlende Gruppen führen zum Fehler.
+Profilgrenzen und konkrete Aufrufe: `contracts/native-test-execution.md`.
+
+**Rationale**: Gradle führt Instrumentierungstests aus; ein TS-Runner im Expo-
+Prozess tut das nicht automatisch. Der Host-App-Task ist bekannt, ohne den Namen
+eines autoverlinkten Library-Projekts zu erraten.
+
+**Alternatives considered**: Nur einen Testdateipfad anzulegen garantiert keinen
+Testlauf. Kotlin-Tests allein durch einen npm-/TS-Runner zu benennen wäre kein
+Nachweis. Ein zusätzlicher eigenständiger Modul-Beispielhost wäre mehr Aufwand.
+
+Quellen: [AndroidJUnitRunner](https://developer.android.com/training/testing/instrumented-tests/androidx-test-libraries/runner),
+[Gradle-Varianten und Modulaufrufe](https://developer.android.com/studio/test/command-line),
+[Expo-Module im App-Host](https://docs.expo.dev/modules/get-started/).
+
+## 8. Upgrade-Tests nach Entfernung der alten App (U2)
+
+**Decision**: Eigenständig baubaren, eingefrorenen Quellstand der Kotlin-App unter
+`mobile/tests/fixtures/legacy-app/` erhalten. Manifest pinnt Ausgangscommit und
+Quellprüfsummen; Seeder erzeugt Daten und alte Keystore-Einträge ausschließlich
+auf dem isolierten Gerät. Eigene Wrapper-/Builddateien ohne Abhängigkeit vom
+aktiven Root-Projekt bleiben Bestandteil dieser Testfixture.
+
+**Rationale**: Das später entfernte `app/` ist dann keine Voraussetzung des
+Upgrade-Tests mehr. Die Fixture enthält keinen zweiten aktiven Produktzweig.
+Erhalt bestehender Konten und Fehlerverhalten stehen zusätzlich als
+FR-014/FR-015/SC-006 in der Spezifikation (C1).
+
+**Alternatives considered**: Nur eine APK ohne reproduzierbaren Quellstand macht
+Fixture-Änderungen und Seeder schwer prüfbar. Ein historischer Git-Checkout allein
+setzt im CI vollständige Historie voraus. Die Testfixture bleibt auch in einem
+flachen Checkout ausführbar; private Signatur und herunterzuladende Buildtools
+sind weiterhin externe Voraussetzungen, keine vorgetäuschte Offline-Buildzusage.
+
+Quelle: bestehender Commit `b7c62f8a80af78d54769a37c8f89b88234579b5e`,
+`gradle/wrapper/gradle-wrapper.properties`, `gradle/libs.versions.toml` und
+`app/build.gradle.kts`. Details: `contracts/legacy-account-migration.md`.
+
+## Ergebnis
+
+Keine offenen Designfragen. Kompatible Patchversionen, erzeugte Backup-Regeln,
+konkrete Gerätematrix und Laufzeiten werden während der Implementierung
+festgeschrieben beziehungsweise geprüft; der Plan behauptet keine bestandenen Tests.

@@ -1,0 +1,16 @@
+{
+  "platforms": [
+    "apple",
+    "android"
+  ],
+  "apple": {
+    "modules": [
+      "StoragePolicyModule"
+    ]
+  },
+  "android": {
+    "modules": [
+      "com.familyhub.storage.StoragePolicyModule"
+    ]
+  }
+}

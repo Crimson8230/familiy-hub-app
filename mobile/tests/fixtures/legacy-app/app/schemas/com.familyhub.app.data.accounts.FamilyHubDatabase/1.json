@@ -1,0 +1,78 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "49ec7b0353ad2b4a9d2e91d7c1a6477e",
+    "entities": [
+      {
+        "tableName": "school_accounts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `child_display_name` TEXT NOT NULL, `child_key` TEXT NOT NULL, `school_code` TEXT NOT NULL, `credentials_ciphertext` BLOB NOT NULL, `credentials_iv` BLOB NOT NULL, `credentials_format_version` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "childDisplayName",
+            "columnName": "child_display_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "childKey",
+            "columnName": "child_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "schoolCode",
+            "columnName": "school_code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "credentialsCiphertext",
+            "columnName": "credentials_ciphertext",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "credentialsIv",
+            "columnName": "credentials_iv",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "credentialsFormatVersion",
+            "columnName": "credentials_format_version",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_school_accounts_child_key",
+            "unique": true,
+            "columnNames": [
+              "child_key"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_school_accounts_child_key` ON `${TABLE_NAME}` (`child_key`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '49ec7b0353ad2b4a9d2e91d7c1a6477e')"
+    ]
+  }
+}
