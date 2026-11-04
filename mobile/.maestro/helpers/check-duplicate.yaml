@@ -1,0 +1,17 @@
+appId: com.familyhub.app
+name: Persisted accounts and duplicate rejection
+---
+- runFlow: assert-accounts.yaml
+- runFlow:
+    file: fill-account.yaml
+    env:
+      CHILD: ${' ' + CHILD_PREFIX.toLowerCase() + ' 01 '}
+      SCHOOL: mittelschule
+- tapOn:
+    id: account-save
+- assertVisible: Für dieses Kind gibt es bereits ein Schulkonto.
+- scrollUntilVisible:
+    element:
+      id: account-cancel
+- tapOn:
+    id: account-cancel

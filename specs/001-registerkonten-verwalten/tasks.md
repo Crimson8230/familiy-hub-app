@@ -509,3 +509,21 @@ Maestro-Syntaxprüfung bestanden. Beide benötigten offiziellen Testhelfer wurde
 bei der Installation mit `INSTALL_FAILED_USER_RESTRICTED` abgewiesen;
 Installationsbereitschaft am Telefon angefragt. Kein neuer UI-Test gestartet,
 keine Konten oder Netzwerkzustände verändert; T032 bleibt offen.
+
+### Laufdiagnose und Bedienungskorrektur T032 (2026-11-04)
+
+Erneute Smartphone-Freigabe genutzt: offizielle Maestro-Helfer installiert.
+Treiberseitiger App-Start bleibt auf Xiaomi blockiert; deshalb gemeinsame
+UI-Phasen aus dem Hauptflow ausgelagert und App-Starts/-Neustarts explizit über
+ADB vom Host gesteuert (Prozessende prüfen, dann starten), ohne zusätzliche
+Hintergrundfenster-Freigaben zu erzwingen.
+
+Dabei echten UI-Fehler gefunden: Hinzufügen-Button bei zehn Konten überlagert
+Android-Systemnavigation (Button unten y=2328, Navigationsleiste ab y=2270).
+SafeAreaView um Übersicht und Formular ergänzt. Typprüfung, 48 Unit-/Komponententests
+und neuer ARM64-Preview-Build bestanden; datenerhaltendes Update installiert.
+Formularöffnung und zwei neue gespeicherte synthetische Konten nativ beobachtet.
+Testannahme nach Rückkehr zur gescrollten Liste korrigiert: erst zur Überschrift
+scrollen statt eine bereits sichtbare Überschrift vorauszusetzen. Keine Konten
+zurückgesetzt. Ein vollständiger neuer Drei-Phasen-Lauf mit neuem Präfix ist aktiv;
+T032 und nachfolgende sequenzielle Aufgaben bleiben bis zu echten Nachweisen offen.

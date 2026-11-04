@@ -1,4 +1,5 @@
 import { Button, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCreateAccount } from './useCreateAccount';
 export const schoolLabels = { grundschule: 'Grundschule St. Martin', mittelschule: 'Mittelschule St. Martin' };
 export function CreateAccountScreen({ onSaved, onCancel }: { onSaved: () => void; onCancel: () => void }) {
@@ -11,7 +12,8 @@ export function CreateAccountScreen({ onSaved, onCancel }: { onSaved: () => void
       style={{ borderWidth: 1, borderColor: '#666', borderRadius: 6, padding: 12, color: '#111', backgroundColor: '#fff' }} />
     {form.errors[name] ? <Text accessibilityRole="alert">{form.errors[name]}</Text> : null}
   </View>;
-  return <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+  return <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1 }}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 24, gap: 20 }}>
       <Text accessibilityRole="header" style={{ fontSize: 24 }}>Schulkonto hinzufügen</Text>
       <Text>Das Konto wird auf diesem Gerät gespeichert. Die Anmeldung bei der Schule wird hier noch nicht geprüft.</Text>
@@ -26,5 +28,6 @@ export function CreateAccountScreen({ onSaved, onCancel }: { onSaved: () => void
       <Button testID="account-save" title={form.busy ? 'Wird gespeichert …' : 'Speichern'} disabled={form.busy} onPress={() => { void form.submit(); }} />
       <Button testID="account-cancel" title="Zurück" disabled={form.busy} onPress={form.cancel} />
     </ScrollView>
-  </KeyboardAvoidingView>;
+    </KeyboardAvoidingView>
+  </SafeAreaView>;
 }

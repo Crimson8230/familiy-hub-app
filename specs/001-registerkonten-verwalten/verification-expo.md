@@ -789,3 +789,55 @@ Stand vor dieser Nutzerentscheidung.
   (`Install canceled by user`). Asked the user to ready USB installation/confirm
   the prompts before any retry. No further flow or native test has run, no
   networking setting changed, and no new platform/US1 acceptance is claimed.
+
+### Renewed execution: host-controlled launch and navigation-bar fix (2026-11-04)
+
+- Both official Maestro helpers eventually installed after the phone's USB
+  installation prompts were accepted. The next direct-Maestro attempt failed
+  before account creation: its overview assertion showed Android developer
+  settings, consistent with the previously observed driver background-launch
+  restriction. The external host controller wrote an incomplete summary, restored
+  both initial network values, removed both helpers and deleted the raw device log.
+- Split the existing main flow into three shared UI phases: create ten accounts,
+  verify persisted accounts/reject duplicate, and final persisted-state check.
+  The main flow still composes those phases with Maestro stop/launch commands.
+  For the authorized phone alternative, the host instead executes explicit ADB
+  force-stop, verifies no target PID remains, starts the app explicitly, then runs
+  each UI phase. This requires no forced background-start permission for Maestro.
+  The same fixture prefix is used throughout; prior accounts are not reset.
+- That host-launch variant reached the overview successfully, but the first add
+  action did not open the form. The captured hierarchy gives `account-add` bounds
+  `[66,2231][1014,2328]`, while Android's navigation bar starts at y=2270.
+  The button center was inside the system-navigation area. The next form-field
+  lookup therefore failed; no new account was created. This was a real layout
+  defect exposed by the ten existing accounts, beyond the earlier test-launch issue.
+- Added SafeAreaView with bottom/left/right edges around both account screens,
+  constraining the scroll viewport above system navigation; top is already handled
+  by the router header. Typecheck and all 48 unit/component tests in 6 suites pass.
+  Main/phase YAML syntax checks pass; no schema/storage behavior changed.
+- Rebuilt ARM64 preview: **build passed in 56s**, 896 tasks (65 executed,
+  831 up-to-date). Artifact:
+  `mobile/tests/artifacts/preview/android/arm64-v8a-safe-area/app-release.apk`,
+  SHA-256 `37a8a9ca103df8fffcbb9e4622119138ccfd1c5f437e8f416de54aee448c3250`.
+  Installed with `adb install -r` (success), preserving accounts; both helper
+  installations also succeeded. The earlier emulator APK predates this UI fix.
+- Started a new host-controlled offline run with a fresh synthetic fixture prefix,
+  without resetting the old ten accounts. A passive local screenshot confirms
+  that Add now opens the form and fields can be filled above the navigation area.
+  Full phase/restart results remain pending until all three reports finish.
+
+- The safe-area build subsequently saved two new synthetic accounts successfully.
+  The attempt then stopped because the test expected the overview title to already
+  be visible after returning to the list. A local screenshot showed the correct
+  saved rows with the list retaining its lower scroll offset; the title was above
+  the viewport. Removed that premature visible-title wait: the next existing step
+  explicitly scrolls UP to the title before finding the newly saved child.
+  This is a test correction, not a storage or navigation-state reset. No rebuild
+  was required for that YAML change. The prior run restored networking, removed
+  helpers and deleted its raw device log; its partial fixture rows were retained.
+- Reinstalled the two official helpers (both succeeded) and started a new full
+  host-controlled run using the corrected shared phases and another unique prefix.
+  The final-state check explicitly uses case-sensitive regex to verify original
+  display capitalization and absence of a lowercased duplicate display row.
+  Reports use separate per-run/per-phase paths and retain an exact local copy of
+  the temporary host controller. Full runtime acceptance is still pending.

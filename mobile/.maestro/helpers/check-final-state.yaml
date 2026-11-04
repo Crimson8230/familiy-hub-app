@@ -1,0 +1,13 @@
+appId: com.familyhub.app
+name: Final accounts after restart
+---
+- runFlow: assert-accounts.yaml
+- scrollUntilVisible:
+    element:
+      text: Schulkonten
+    direction: UP
+- scrollUntilVisible:
+    element:
+      text: ${CHILD_PREFIX + ' 01'}
+- assertVisible: ${'(?-i)' + CHILD_PREFIX + ' 01'}
+- assertNotVisible: ${'(?-i)' + CHILD_PREFIX.toLowerCase() + ' 01'}

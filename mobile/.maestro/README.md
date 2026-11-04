@@ -60,6 +60,33 @@ mit fest gewählter Seriennummer gestartet.
 Maestro-Parameter und Standardwerte:
 [offizielle Dokumentation](https://docs.maestro.dev/maestro-flows/flow-control-and-logic/parameters-and-constants).
 
+### Alternative bei blockierten App-Starts durch den Testtreiber
+
+Die Hauptdatei verwendet drei gemeinsame UI-Phasen. Falls Android den App-Start
+aus `dev.mobile.maestro` heraus blockiert, kann der ausdrücklich autorisierte Host
+dieselben Phasen separat steuern. Es werden keine zusätzlichen App-Berechtigungen
+erzwungen. Bei abgeschalteten Datenverbindungen und gestopptem Metro:
+
+1. Die Preview über `adb -s SERIAL shell am force-stop com.familyhub.app` beenden,
+   mit `pidof` den beendeten Prozess prüfen, dann mit
+   `adb -s SERIAL shell am start -W -n com.familyhub.app/.MainActivity` starten.
+2. `helpers/create-ten-accounts.yaml` mit Maestro ausführen.
+3. Erneut über ADB beenden, Prozessende prüfen und starten; dann
+   `helpers/check-duplicate.yaml` ausführen.
+4. Zweiten Prozessneustart ebenso prüfen und
+   `helpers/check-final-state.yaml` ausführen.
+
+Jede Phase mit explizitem Ziel, `--no-reinstall-driver`, identischen `CHILD_PREFIX`-
+und `REQUIRE_EMPTY`-Parametern sowie eigenem JUnit-Bericht ausführen. Die beiden
+Neustarts zwischen den Phasen müssen echte Prozessenden/-starts sein; ein
+Neurendern oder bloßes Wechseln der Ansicht genügt nicht. Nur drei tatsächlich
+bestandene Phasen und zwei nachgewiesene Neustarts ergeben den vollständigen
+Android-UI-Ablauf. Vorhandene Konten bleiben erhalten; keine automatischen Resets.
+
+Die Dateien werden auch von `create-account.yaml` eingebunden. So prüfen Host-
+und direkter Maestro-Ablauf dieselben UI-Schritte. Ohne separat ausdrückliche
+Freigabe bleibt die Regel bestehen, ausschließlich Emulatoren zu verwenden.
+
 ## Ausführung aus `mobile/`
 
 Automatisierte Android-Läufe verwenden einen explizit gewählten Emulator.
