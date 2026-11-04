@@ -128,3 +128,17 @@ Ein iOS-Simulator auf macOS genügt; ein physisches iPhone ist nicht erforderlic
 Keine iOS- oder vollständige Feature-/Releasefreigabe ohne diesen Nachweis;
 Entfernung der alten Kotlin-App bleibt an sämtliche bisherigen Gates gebunden.
 Dies ändert die Reihenfolge, nicht die plattformübergreifenden Produktanforderungen.
+
+### Aktualisierung: T087 bestanden (2026-11-04)
+
+Die zuvor vertagte iOS-Grundlagenprüfung ist auf macOS/Xcode abgeschlossen:
+31/31 anwendbare TS-Szenarien, 7 echte Prozessneustarts und die absichtliche
+Fehlerprobe bestanden. Android-Legacy/Kotlin sind auf iOS nicht anwendbar.
+Frische native-test-Generierung und Builds erfolgten; der abschließende Lauf
+verwendete nach reinen Hostkorrekturen `--reuse-native-project` mit erneutem Build.
+Der iOS-Host baut ohne GUI-Aktivierung und startet die App mit `simctl launch`
+und Expos `--initialUrl`, um interaktive URL-Dialoge zu vermeiden.
+`--reuse-native-project` unterstützt jetzt auch ein bereits erzeugtes iOS-Testprojekt;
+nach nativen Konfigurationsänderungen weiterhin frisch generieren.
+Details und bereinigte Build-/Simulatornachweise: [Prüfbericht](../verification-expo.md).
+T032 ist der nächste sequenzielle Schritt; die übrigen Abnahme-/Releasegates bleiben offen.

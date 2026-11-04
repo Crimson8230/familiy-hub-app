@@ -2,14 +2,15 @@
 
 Expo SDK 58 / React Native 0.88 / TypeScript for Android and iOS.
 Current status: secure-storage foundation and initial account creation/list UI implemented
-(T001–T031, with iOS verification deferred).
+(T001–T031, with the deferred iOS foundation check T087 now passed).
 Android foundation checkpoint T023 passed; account creation and minimal list UI are
 implemented. Account deletion and full story/preview acceptance are pending.
-iOS foundation acceptance is deferred to T087 after T031 and before T032/T034;
-Android story implementation may continue. Full platform/release acceptance stays gated.
+iOS foundation check T087 passed on an iOS 27.2 Simulator: 31 native scenarios,
+7 process restarts and the intentional failure probe. T032 is next;
+full story/platform/release acceptance stays gated by the remaining tasks.
 As of 2026-11-04, the legacy read-only snapshot defect is fixed and all 34 Android
 TS scenarios and all 7 Kotlin tests pass together in the complete Android run,
-including both failure probes and 10 process restarts. iOS verification is outstanding.
+including both failure probes and 10 process restarts.
 See `../specs/001-registerkonten-verwalten/verification-expo.md` for executed checks and blockers.
 The original Kotlin application remains under `../app/` until all replacement gates pass.
 
@@ -45,8 +46,9 @@ Keep the phone connected and unlocked; JS is served by Metro.
 
 After native dependencies, plugins or profile configuration change, run the
 normal command to regenerate/build/install. `--reuse-native-project` skips only
-project generation for an already generated Android native-test project; it still
-builds and executes both native test groups. Do not use it after native config changes.
+project generation for an already generated native-test project; it still
+builds and executes all platform test groups. On iOS it checks the test bundle ID,
+test harness and SQLCipher setting before reuse. Do not use it after native config changes.
 
 Select a profile using `FAMILYHUB_BUILD_PROFILE`: `development` (default),
 `native-test`, `preview`, or `upgrade-test`. EAS profiles set it explicitly.
@@ -57,6 +59,15 @@ Preview embeds its JS bundle so offline startup does not depend on Metro.
 
 Local Android requires a JDK and Android SDK. Local iOS requires macOS/Xcode.
 Store submission and EAS account setup are outside this implementation stage.
+
+For local iOS tests, finish Xcode's first-launch setup, install an iOS Simulator
+runtime, and boot a Simulator. Use Node 22 and CocoaPods. If the active developer
+directory still points to Command Line Tools, set
+`DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` for the test command.
+The iOS host builds a generic Simulator binary, installs it on the selected UDID
+with `simctl`, and passes the Metro URL directly through Expo's `--initialUrl` argument.
+It does not require macOS System Events automation access or an interactive
+URL-opening confirmation. Build outputs remain under `tests/artifacts/native/`.
 
 ## Legacy fixture
 
@@ -79,4 +90,4 @@ Typecheck and 48 unit/component tests pass. The installed Android native test ap
 passes 44 TS scenarios (10 new creation scenarios), its failure probe and 12 real
 process restarts. This diagnostic does not replace the earlier full Android
 foundation acceptance or the outstanding iOS/standalone offline-preview checks.
-T087 is the next sequential gate before T032; no full US1 acceptance is claimed.
+T087 now passes on iOS; T032 is next. No full US1 acceptance is claimed.

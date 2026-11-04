@@ -63,10 +63,17 @@ try {
     command(adb, ['-s', device, 'shell', 'run-as', app, 'pwd']);
     console.log('Using installed test host: no prebuild, Gradle or APK installation.');
   } else if (args.includes('--reuse-native-project')) {
-    if (platform !== 'android') throw new Error('Native project reuse is only supported for Android');
-    const generated = readFileSync(path.join(root, 'android/app/build.gradle'), 'utf8');
-    if (!generated.includes(`applicationId '${app}'`) && !generated.includes(`applicationId "${app}"`)) throw new Error('Reuse requires an existing native-test Android project');
-    if (!generated.includes('com.familyhub.legacy') && !generated.includes('../../modules/legacy-accounts/android/src/androidTest/java')) throw new Error('Reuse requires the native instrumentation harness');
+    if (platform === 'ios') {
+      const generated = readFileSync(path.join(root, 'ios/FamilyHub.xcodeproj/project.pbxproj'), 'utf8');
+      const properties = json(readFileSync(path.join(root, 'ios/Podfile.properties.json'), 'utf8'));
+      if (!generated.includes(`PRODUCT_BUNDLE_IDENTIFIER = ${app};`) ||
+          !generated.includes('FamilyHubTestSupport.swift') || !generated.includes('FamilyHubTestSupport.m') ||
+          properties?.['expo.sqlite.useSQLCipher'] !== 'true') throw new Error('Reuse requires an existing SQLCipher native-test iOS project');
+    } else {
+      const generated = readFileSync(path.join(root, 'android/app/build.gradle'), 'utf8');
+      if (!generated.includes(`applicationId '${app}'`) && !generated.includes(`applicationId "${app}"`)) throw new Error('Reuse requires an existing native-test Android project');
+      if (!generated.includes('com.familyhub.legacy') && !generated.includes('../../modules/legacy-accounts/android/src/androidTest/java')) throw new Error('Reuse requires the native instrumentation harness');
+    }
   } else {
     command('npx', ['expo', 'prebuild', '--platform', platform, '--no-install'], { stdio: 'inherit' });
   }
@@ -107,7 +114,11 @@ try {
     }
     command(adb, ['-s', device, 'reverse', `tcp:${port}`, `tcp:${port}`]);
   } else {
-    command('npx', ['expo', 'run:ios', '--device', device, '--no-bundler'], { stdio: 'inherit' });
+    // Build without Expo's GUI activation (which requires System Events access).
+    // Installation and process control belong to the selected Simulator below.
+    const output = path.join(root, 'tests/artifacts/native/ios-build');
+    command('npx', ['expo', 'run:ios', '--device', 'generic', '--no-bundler', '--output', output], { stdio: 'inherit' });
+    command('xcrun', ['simctl', 'install', device, path.join(output, 'FamilyHub.app')]);
     container = command('xcrun', ['simctl', 'get_app_container', device, app, 'data']).trim();
   }
   try { await fetch(`http://127.0.0.1:${port}/status`); throw new Error('Metro test port is already occupied'); }
@@ -145,7 +156,7 @@ try {
     } else {
       spawnSync('xcrun', ['simctl', 'terminate', device, app]);
       if (pendingRequest) request(pendingRequest);
-      command('xcrun', ['simctl', 'openurl', device, link]);
+      command('xcrun', ['simctl', 'launch', device, app, '--initialUrl', `${link}&disableOnboarding=1&disableAutoLaunch=1`]);
     }
   };
   await launch({ state: 'request', mode: 'intentional-failure' });
