@@ -507,3 +507,55 @@ Stand vor dieser Nutzerentscheidung.
   macOS/Xcode environment is available here; iOS and full US1 acceptance remain
   unverified. No downstream story, deletion or removal gates were bypassed.
 - No before/after extension hooks are configured. `git diff --check` passed.
+
+## iOS foundation verification: T087 (2026-11-04)
+
+- Environment: macOS 26.6.2 (25G83), Xcode 27.2 (27B52), Node 22.23.4,
+  CocoaPods 1.17.0. Simulator: iPhone 18 Pro, iOS 27.2 (24B8117), arm64,
+  UDID `14C32067-CA45-4C2C-ADD8-BEF47ED9FE02`. Native-test app:
+  `com.familyhub.app.nativetest`, version 0.2.0, build 2, SQLCipher enabled.
+- Installed Xcode and its iOS runtime, completed first-launch setup and installed
+  the locked npm dependencies. Xcode is selected for these commands through
+  `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`; the system default
+  still points to Command Line Tools. Node 22 is selected through PATH.
+- Fresh native-test prebuild and Simulator builds succeeded. Initial runs stopped
+  before the suites: Expo's automatic Simulator activation required denied System
+  Events access; `simctl openurl` then displayed an interactive iOS Open dialog.
+  Scheme approval did not resolve that dialog on this runtime. The final host
+  builds with Expo's generic Simulator destination, installs with `simctl`, and
+  launches the app directly with Expo's `--initialUrl` process argument. No
+  scheme-approval modification or Simulator reboot is required by the final code.
+- After host-only corrections, the final command from `mobile/` was:
+
+  ```bash
+  PATH=/opt/homebrew/opt/node@22/bin:$PATH \
+  DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
+  npm run test:native -- --platform ios \
+    --device 14C32067-CA45-4C2C-ADD8-BEF47ED9FE02 --reuse-native-project
+  ```
+
+  This reused the freshly generated, unchanged native-test project, checked its
+  test bundle identifier, harness references and SQLCipher property, rebuilt and
+  installed its binary, then executed the full iOS scope. It did not use the
+  Android-only `--installed` diagnostic path or a single-case filter.
+- Result: **31 passed, 0 failed, 0 skipped, 7 real process restarts, exit 0**.
+  The intentional TypeScript failure probe produced the expected failure before
+  normal execution. The 21 storage/bootstrap and 10 creation cases exercised real
+  SecureStore and SQLCipher. Existing injected fault cases remain injections;
+  this is not a device-lock or comprehensive storage-lifecycle acceptance claim.
+- Android's 13 legacy migration scenarios and Kotlin instrumentation are
+  **not applicable on iOS**, rather than skipped required iOS tests. The host
+  correctly emitted only the `typescript` result group.
+- Local runner output: `mobile/tests/artifacts/native/ios-summary.json`, marked
+  `complete: true`, `diagnostic: false`. Versioned sanitized evidence, expected
+  scenario manifest, package/build versions and executable SHA-256:
+  [2026-11-04-ios-foundation.json](evidence/2026-11-04-ios-foundation.json).
+  Per-case result reporting remains open under T083; no raw errors or secrets
+  are included in the evidence.
+- Regression checks: typecheck passed; 48 unit/component tests in 6 suites passed
+  (`--runInBand --watchman=false`); 7 host tests passed. Simulator builds reported
+  0 errors and 2 Expo warnings (CoreModule visibility and script dependencies).
+- T087 is complete and T032 is next. Standalone offline Preview, additional
+  security/lifecycle coverage, accessibility, performance, user studies, full
+  story/release acceptance and Kotlin-removal gates remain open. Earlier entries
+  recording unavailable macOS/iOS infrastructure describe the historical state.

@@ -12,7 +12,7 @@ description: "Implementation tasks for Expo school-account management on Android
 [Testausführung](contracts/native-test-execution.md), [quickstart.md](quickstart.md),
 Constitution 2.0.0.
 
-**Stand**: T001–T023 sowie T060/T073 im freigegebenen Android-Umfang abgeschlossen; iOS-Abnahme nach T087 verschoben. T024–T031 sowie T063/T074 implementiert und geprüft. Nächster sequenzieller Schritt: T087, danach T032 ff.
+**Stand**: T001–T023 sowie T060/T073 im freigegebenen Android-Umfang abgeschlossen; verschobene iOS-Grundlagenprüfung T087 jetzt bestanden (31 Szenarien, 7 Prozessneustarts, Fehlerprobe). T024–T031 sowie T063/T074 implementiert und geprüft. Nächster sequenzieller Schritt: T032 ff. Vollständige Story-/Releaseabnahme bleibt offen.
 Expo-Aufgaben nach Planpräzisierung A1/U1/U2/C1 aktualisiert; 59
 Aufgaben werden nach tatsächlicher Umsetzung und Prüfung markiert; IDs beibehalten. Die bisherigen 40 erledigten
 Kotlin-Aufgaben sind unverändert in [tasks-kotlin-archive.md](tasks-kotlin-archive.md)
@@ -84,7 +84,7 @@ verschoben; T023/T060/T073 sind ausschließlich im Android-Umfang abgeschlossen.
 Details: [verification-expo.md](verification-expo.md).
 Die Android-Story-Implementierung ist freigegeben; T087 ist vor T032/T034 und jeder plattformübergreifenden Abnahme auszuführen.
 
-**Checkpoint Android erreicht; iOS vertagt**: Android-Speicherbasis und Migrationsvertrag nativ geprüft. Die iOS-Integration bleibt bis T087 ungeprüft; vollständige Plattformfreigabe und Release sind weiterhin gesperrt.
+**Checkpoint aktualisiert**: Android-Speicherbasis und Migrationsvertrag nativ geprüft. Die verschobene iOS-Prüfung T087 ist inzwischen bestanden; Nachweis unten und in verification-expo.md. Vollständige Story-/Plattformfreigabe und Release bleiben an die übrigen Gates gebunden. Der vorstehende Vertagungsvermerk beschreibt die frühere Prüfsequenz.
 
 ## Phase 3: User Story 1 – Schulkonto für ein Kind speichern (Priority: P1)
 
@@ -396,7 +396,7 @@ T032/T034 ausführen; bei früher verfügbarer Mac-Umgebung vorziehen. Bis dahin
 keine iOS-, Story-Gesamt- oder Releaseabnahme behaupten. Die Entfernungsgates
 T058/T072/T086 bleiben einschließlich aller iOS-Nachweise unverändert verbindlich.
 
-- [ ] T087 HIGH: Verschobene iOS-Grundlagenabnahme aus T023/T060/T073 auf macOS/Xcode mit gebootetem iOS-Simulator durchführen (kein iPhone erforderlich): native-test-Profil frisch generieren/bauen, `npm run test:native -- --platform ios --device UDID` aus mobile ausführen, alle anwendbaren TS-/SecureStore-/SQLCipher-/Neustartfälle sowie die absichtliche Fehlerprobe tatsächlich prüfen, Fehler beheben und bereinigten Bericht samt Build-/Simulatorkennung in verification-expo.md dokumentieren. Android-Legacy-Fälle als nicht anwendbar ausweisen. Nach T031, zwingend vor T032/T034 und vollständiger Plattform-/Releaseabnahme; ohne Mac offen halten, nicht durch Android-/Jest-Erfolg ersetzen.
+- [X] T087 HIGH: Verschobene iOS-Grundlagenabnahme aus T023/T060/T073 auf macOS/Xcode mit gebootetem iOS-Simulator durchführen (kein iPhone erforderlich): native-test-Profil frisch generieren/bauen, `npm run test:native -- --platform ios --device UDID` aus mobile ausführen, alle anwendbaren TS-/SecureStore-/SQLCipher-/Neustartfälle sowie die absichtliche Fehlerprobe tatsächlich prüfen, Fehler beheben und bereinigten Bericht samt Build-/Simulatorkennung in verification-expo.md dokumentieren. Android-Legacy-Fälle als nicht anwendbar ausweisen. Nach T031, zwingend vor T032/T034 und vollständiger Plattform-/Releaseabnahme; ohne Mac offen halten, nicht durch Android-/Jest-Erfolg ersetzen.
 
 ### Ausführung US1-Implementierung (2026-11-04)
 
@@ -411,3 +411,17 @@ korrekt diagnostisch: kein neuer Kotlin-Lauf oder vollständiger Plattformnachwe
 T066/T079 bleiben wegen der übrigen Story-/Preview-/Plattformprüfungen offen.
 Nächster sequenzieller Prüfpunkt ist T087 vor T032; iOS, Offline-Preview auf dem
 Gerät und vollständige US1-Abnahme bleiben ungeprüft. Details in verification-expo.md.
+
+### Ausführung iOS-Grundlagenprüfung T087 (2026-11-04)
+
+T087 bestanden: macOS 26.6.2, Xcode 27.2, iPhone-18-Pro-Simulator mit iOS 27.2
+(24B8117), native-test-Build 0.2.0/2. Frische Generierung und Builds erfolgreich;
+der abschließende vollständige Lauf nutzte nach reinen Hostkorrekturen
+`--reuse-native-project` mit erneutem Build des unveränderten nativen Projekts.
+31/31 vorhandene TS-Szenarien bestanden, 0 Fehler/Skips, 7 echte Prozessneustarts,
+absichtliche TS-Fehlerprobe bestätigt. Android-Legacy und Kotlin sind auf iOS
+nicht anwendbar. Prüfbericht und versionierter bereinigter Nachweis stehen in
+verification-expo.md und evidence/2026-11-04-ios-foundation.json.
+Die früheren Vertagungsvermerke bleiben als Verlauf erhalten. T032 ist jetzt der
+nächste sequenzielle Schritt. Weitere Sicherheitsfälle T077, Einzelberichtserweiterung
+T083, Offline-Preview und vollständige Story-/Releaseabnahme bleiben offen.

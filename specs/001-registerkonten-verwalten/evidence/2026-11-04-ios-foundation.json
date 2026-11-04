@@ -1,0 +1,109 @@
+{
+  "platform": "ios",
+  "device": "14C32067-CA45-4C2C-ADD8-BEF47ED9FE02",
+  "profile": "native-test",
+  "complete": true,
+  "diagnostic": false,
+  "groups": [
+    {
+      "name": "typescript",
+      "passed": 31,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "restarts": 7,
+  "failureProbesVerified": true,
+  "typescriptFailureProbeVerified": true,
+  "date": "2026-11-04",
+  "task": "T087",
+  "macOS": "26.6.2 (25G83)",
+  "xcode": "27.2 (27B52)",
+  "simulator": {
+    "name": "iPhone 18 Pro",
+    "runtime": "iOS 27.2 (24B8117)",
+    "architecture": "arm64"
+  },
+  "node": "22.23.4",
+  "cocoapods": "1.17.0",
+  "build": {
+    "bundleIdentifier": "com.familyhub.app.nativetest",
+    "version": "0.2.0",
+    "buildNumber": "2",
+    "sdk": "iphonesimulator27.2",
+    "executableSHA256": "62495d6614db8ac0b6e3543d81c503d072ba0b1c51d0da281265dfa180792442"
+  },
+  "packages": {
+    "expo": "58.0.19",
+    "expo-build-properties": "~58.0.11",
+    "expo-constants": "~58.0.13",
+    "expo-crypto": "~58.0.7",
+    "expo-dev-client": "~58.0.15",
+    "expo-linking": "~58.0.14",
+    "expo-router": "~58.0.26",
+    "expo-secure-store": "~58.0.2",
+    "expo-splash-screen": "~58.0.11",
+    "expo-sqlite": "~58.0.14",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.0",
+    "react-native-safe-area-context": "~5.10.1",
+    "react-native-screens": "~4.30.0"
+  },
+  "expectedScenarios": [
+    "fresh-marker-before-key",
+    "matching-provisioning-key-reused",
+    "foreign-provisioning-key-replaced",
+    "missing-provisioning-key-created",
+    "existing-db-key-missing",
+    "existing-db-key-wrong",
+    "existing-db-key-temporarily-locked",
+    "existing-db-marker-missing",
+    "corrupt-marker-preserved",
+    "ready-without-db-rejected",
+    "orphaned-wal-preserved",
+    "keychain-residue-without-files",
+    "sqlcipher-absent-fails-closed",
+    "unknown-schema-rejected",
+    "schema-rollback-preserves-accounts",
+    "crash-after-marker",
+    "crash-after-key",
+    "crash-after-db",
+    "crash-before-ready",
+    "crash-after-ready",
+    "unicode-identity-compatible",
+    "creation-ten-and-reopen",
+    "creation-concurrent-duplicates",
+    "creation-rollback",
+    "creation-ambiguous-commit",
+    "creation-before-commit",
+    "creation-after-commit",
+    "creation-long-credentials",
+    "creation-missing-key",
+    "creation-wrong-key",
+    "creation-unavailable-cipher"
+  ],
+  "notApplicable": {
+    "androidLegacyScenarios": [
+      "legacy-formats-1-2-3",
+      "legacy-unicode-and-long-values",
+      "legacy-empty-without-alias",
+      "legacy-missing-key-preserves-source",
+      "legacy-unknown-schema-preserves-source",
+      "legacy-unknown-format-preserves-source",
+      "legacy-child-key-conflict-preserves-source",
+      "legacy-before-import-commit",
+      "legacy-after-import-commit",
+      "legacy-after-source-deletion",
+      "legacy-after-alias-deletion",
+      "legacy-after-complete",
+      "legacy-deleted-account-never-reappears"
+    ],
+    "androidInstrumentation": true
+  },
+  "execution": "Fresh native-test prebuild and build completed. Final passing run rebuilt the unchanged generated project with --reuse-native-project after host-only launch corrections. No --installed or --case diagnostic scope.",
+  "limitations": [
+    "Aggregate runner report; per-case result records remain T083.",
+    "No standalone offline Preview, physical-device, backup/lifecycle, accessibility, performance or user acceptance claimed."
+  ]
+}
