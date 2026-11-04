@@ -1,0 +1,21 @@
+appId: com.familyhub.app
+---
+- extendedWaitUntil:
+    visible: Schulkonten
+    timeout: 10000
+- evalScript: ${output.number = 1}
+- repeat:
+    times: 10
+    commands:
+      - evalScript: "${output.child = 'Offline Kind ' + (output.number < 10 ? '0' : '') + output.number}"
+      - scrollUntilVisible:
+          element:
+            text: Schulkonten
+          direction: UP
+      - scrollUntilVisible:
+          element:
+            text: ${output.child}
+      - assertVisible: ${output.child}
+      - assertNotVisible: synthetic-offline-user
+      - assertNotVisible: synthetic-offline-password
+      - evalScript: ${output.number = output.number + 1}

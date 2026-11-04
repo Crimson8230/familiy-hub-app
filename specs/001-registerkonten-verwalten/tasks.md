@@ -425,3 +425,20 @@ verification-expo.md und evidence/2026-11-04-ios-foundation.json.
 Die früheren Vertagungsvermerke bleiben als Verlauf erhalten. T032 ist jetzt der
 nächste sequenzielle Schritt. Weitere Sicherheitsfälle T077, Einzelberichtserweiterung
 T083, Offline-Preview und vollständige Story-/Releaseabnahme bleiben offen.
+
+### Vorbereitung Offline-Preview T032 (2026-11-04)
+
+Maestro-Hauptablauf `mobile/.maestro/create-account.yaml` mit Teilabläufen,
+stabilen UI-Testkennungen und Ausführungsanleitung erstellt. Zehn synthetische
+Konten mit beiden Schulen, zwei Prozessneustarts und Ablehnung einer
+normalisierten Duplikatkennung sind abgedeckt; kein automatisches Löschen von
+App-Daten oder Keychain. Offizieller Maestro-Syntaxcheck (2.12.1), Typprüfung,
+48 Unit-/Komponententests und 7 Hosttests bestanden. Separater Android-Diagnoselauf
+mit installierter native-test-App: 44/44 TS-Szenarien, 12 Prozessneustarts und
+TS-Fehlerprobe bestanden; kein neuer Kotlin-/vollständiger Plattformnachweis.
+Frisch generierter Android-Preview-Release-Build mit eingebettetem Bundle
+erfolgreich. Installation auf dem Testgerät durch
+`INSTALL_FAILED_USER_RESTRICTED` blockiert; Offline-UI-Lauf nicht gestartet.
+iOS-Preview mangels macOS/Xcode in dieser Umgebung nicht ausgeführt.
+**T032 bleibt offen; T033/T034 und nachfolgende sequenzielle Aufgaben wurden
+nicht vorgezogen.** Nachweise und Fortsetzung in verification-expo.md.

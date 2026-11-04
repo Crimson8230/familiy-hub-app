@@ -57,6 +57,11 @@ A native dependency/configuration or profile change requires `npx expo prebuild 
 with the same profile followed by a new native build.
 Preview embeds its JS bundle so offline startup does not depend on Metro.
 
+The standalone account-creation flow and platform execution instructions are in
+[.maestro/README.md](.maestro/README.md). It requires a fresh, isolated preview
+installation and disabled device networking; it never clears existing app data.
+Run the main `create-account.yaml` file, not the parameterized helper directory.
+
 Local Android requires a JDK and Android SDK. Local iOS requires macOS/Xcode.
 Store submission and EAS account setup are outside this implementation stage.
 

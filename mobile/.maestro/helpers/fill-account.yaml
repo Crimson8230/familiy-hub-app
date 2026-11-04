@@ -1,0 +1,30 @@
+appId: com.familyhub.app
+---
+- scrollUntilVisible:
+    element:
+      id: account-add
+- tapOn:
+    id: account-add
+- tapOn:
+    id: account-childName
+- inputText: ${CHILD}
+- hideKeyboard
+- tapOn:
+    id: account-school-${SCHOOL}
+- scrollUntilVisible:
+    element:
+      id: account-username
+- tapOn:
+    id: account-username
+- inputText: synthetic-offline-user
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: account-password
+- tapOn:
+    id: account-password
+- inputText: synthetic-offline-password
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: account-save

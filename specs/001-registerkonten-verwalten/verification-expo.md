@@ -559,3 +559,66 @@ Stand vor dieser Nutzerentscheidung.
   security/lifecycle coverage, accessibility, performance, user studies, full
   story/release acceptance and Kotlin-removal gates remain open. Earlier entries
   recording unavailable macOS/iOS infrastructure describe the historical state.
+
+## Offline Preview preparation: T032 (2026-11-04)
+
+- Sanitized result snapshot: [T032 preparation evidence](evidence/2026-11-04-t032-preparation.json).
+- Added `mobile/.maestro/create-account.yaml`, parameterized fill/assert helpers,
+  stable form/action test IDs, and [execution instructions](../../mobile/.maestro/README.md).
+  The flow creates ten synthetic accounts across both schools, checks every child
+  after a process stop/start, rejects a case/whitespace duplicate with a different
+  school, and checks all ten children after another restart. Visible credentials
+  are rejected. It requires an empty isolated preview installation and never clears
+  application data or the iOS Keychain. Exact SQL counts and Unicode/commit faults
+  remain separate native checks, rather than claims of the UI assertions.
+- Environment: Linux, Node 22.23.4 (temporary official distribution verified against
+  its published SHA-256), JDK 21.0.12.1, Maestro 2.12.1; locked Expo 58.0.19,
+  React Native 0.88.0, React 19.3.0. Connected Android test device: Xiaomi
+  M2101K6G, Android 13, serial `1b274288`.
+- Checks passed: official `maestro check-syntax` including helper references;
+  typecheck; 48 unit/component tests in 6 suites; 7 host tests; `git diff --check`.
+  The first cold Jest run timed out in one component test (47/48 passed); repeating
+  the unchanged suite passed all 48. No timeout increase or test suppression.
+- Separate native-test command from `mobile/`:
+
+  ```bash
+  npm run test:native -- --platform android --device 1b274288 --installed
+  ```
+
+  Result: **44 passed, 0 failed/skipped, 12 real process restarts**, intentional TS
+  failure probe verified, exit 0. Report:
+  `mobile/tests/artifacts/native/android-diagnostic-summary.json` with
+  `diagnostic: true`, `complete: false`. No Kotlin group or full platform acceptance
+  is claimed. The runner stopped its Metro server after execution.
+- Fresh preview generation and release build from `mobile/` succeeded:
+
+  ```bash
+  FAMILYHUB_BUILD_PROFILE=preview npx expo prebuild --platform android --no-install
+  cd android
+  FAMILYHUB_BUILD_PROFILE=preview ./gradlew :app:assembleRelease -PreactNativeArchitectures=arm64-v8a --console=plain
+  ```
+
+  Local Android SDK was supplied through `ANDROID_HOME`; Node 22 through PATH.
+  Gradle 9.4.1, Kotlin plugin 2.2.10, compile SDK 37, target SDK 36,
+  NDK 27.1.12297006. Build succeeded in 12m28s (896 tasks). Generated app ID:
+  `com.familyhub.app`, version 0.2.0/build 2; preview config and generated Android
+  sources have no FamilyHub native-test harness/source-set registration.
+  APK: `mobile/android/app/build/outputs/apk/release/app-release.apk`;
+  SHA-256 `0f5968d417b2f155601dc5da8ad134aef61466eb0ea2e8672793ea815baf24dd`.
+  ZIP inspection confirms embedded `assets/index.android.bundle` (2,156,064 bytes).
+  This proves packaging/build success, not successful device startup.
+- Installation using `adb -s 1b274288 install .../app-release.apk` failed with
+  `INSTALL_FAILED_USER_RESTRICTED: Install canceled by user`. Previously only the
+  separate native-test packages were installed. No uninstall/reset was attempted.
+  The Preview UI flow did **not** run. Device Wi-Fi and mobile-data settings were
+  read (both enabled), but not changed. Metro ports 8081/8089 were confirmed idle
+  after the native diagnostic.
+- **T032 remains open.** Resume by allowing USB installation on the test device,
+  installing the existing APK, disabling device networking, and running the main
+  Maestro flow as documented. Restore the original networking state afterwards.
+  Then execute the separate iOS Preview flow on macOS/Xcode; that environment is
+  unavailable in this session. Earlier T087 iOS results remain valid but do not
+  substitute for this standalone Preview run. T033/T034 and later sequential
+  acceptance work were not advanced. No full US1 or release acceptance is claimed.
+- No extension hooks are configured. The existing `feature/account-creation`
+  branch is continued from current `main`; no push, remote merge or publication.

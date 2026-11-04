@@ -26,6 +26,6 @@ export function AccountListScreen({ onAdd }: { onAdd: () => void }) {
       : accounts === null ? <ActivityIndicator accessibilityLabel="Konten werden geladen" />
       : accounts.length === 0 ? <Text>Noch keine Schulkonten gespeichert. Füge ein Schulkonto hinzu.</Text>
       : accounts.map(account => <View key={account.id} style={{ gap: 6 }}><Text>{account.childDisplayName}</Text><Text>{schoolLabels[account.schoolCode]}</Text></View>)}
-    <Button title="Schulkonto hinzufügen" onPress={onAdd} />
+    <Button testID="account-add" title="Schulkonto hinzufügen" onPress={onAdd} />
   </ScrollView>;
 }
