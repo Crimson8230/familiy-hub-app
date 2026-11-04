@@ -678,3 +678,38 @@ Stand vor dieser Nutzerentscheidung.
   the offline main flow, and enabled again for the diagnostic pause.
   T032, downstream sequential gates and iOS Preview remain open. No additional
   product changes or claims of completed account-creation acceptance.
+
+### Final authorized personal-device attempt and cleanup (2026-11-04)
+
+- User explicitly limited further testing to **one last attempt** on the personal
+  Xiaomi device because of security concerns. That authorization is now consumed.
+  No further attempts or additional automation permissions on that device;
+  use an emulator or a separate test device for subsequent work. Updated the
+  Maestro guide and tasks to preserve this instruction across future invocations.
+- Ran the unchanged `create-account.yaml` once using `--no-reinstall-driver`,
+  local JUnit output target `tests/artifacts/preview/android/create-account-final.xml`
+  and debug target `tests/artifacts/preview/android/final-debug`. Wi-Fi and mobile
+  data were initially `1`, disabled and confirmed `0`; Metro ports 8081/8089 were idle.
+  No cloud execution, state clearing, application reinstall or test retry.
+- Start/input control worked. Passive local progress screenshots showed the third
+  and sixth forms, eight saved accounts, and finally all **ten** synthetic children
+  with their alternating schools in the overview. No real credentials were used.
+  This is observed UI evidence; no exact SQL count was read by the preview flow.
+- The host process ended with **exit 143** before a completed JUnit/command report
+  was written. The cause of termination is not established. The complete flow
+  did not produce a passing result; neither the two process-restart checkpoints
+  nor duplicate rejection can be accepted from this attempt. No further run was
+  started, as requested. T032 stays unchecked; iOS Preview is also outstanding.
+- Cleanup completed: restored Wi-Fi/mobile data with `svc ... enable`, confirmed
+  both `1`; uninstalled only `dev.mobile.maestro.test` and `dev.mobile.maestro`,
+  both returned `Success`; verified `pm list packages maestro` returned no packages.
+  Family Hub and its synthetic test accounts remain installed. Deleted three
+  generated device-wide `device-logcat.txt` files from the local Maestro artifact
+  directories; no such raw logs are versioned. Targeted reports/metadata remain local.
+- No global developer/security toggles were changed automatically. User can now
+  switch off USB debugging, USB-debugging security settings and USB installation,
+  and disconnect the cable. The Maestro-specific background-window permission
+  belonged to the removed helper application.
+- Documentation-only follow-up validated with JSON parsing and `git diff --check`.
+  Earlier type/unit/host/native/build results above are unchanged; none substitutes
+  for the incomplete end-to-end run. No full story/platform/release acceptance.

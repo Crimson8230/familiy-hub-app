@@ -36,6 +36,13 @@ die vorhandenen Treiber wiederverwenden. Während des Flows das entsperrte Gerä
 liegen lassen. Änderungen an diesen zusätzlichen Freigaben nach dem Test nach
 Bedarf zurücknehmen; sie sind keine Berechtigungen der Family-Hub-App.
 
+**Nutzerentscheidung 2026-11-04:** Der ausdrücklich freigegebene letzte Lauf auf
+dem persönlichen Xiaomi-Gerät wurde ausgeführt (unvollständig, Exit 143).
+Keine weiteren
+Versuche oder zusätzlichen Automatisierungsfreigaben auf diesem Gerät anfordern.
+Folgeprüfungen auf Emulator oder separatem Testgerät vorbereiten; ein erneuter
+Einsatz des persönlichen Geräts braucht eine neue ausdrückliche Beauftragung.
+
 ## Ausführung aus `mobile/`
 
 Android lokal bauen (Node 22, JDK und Android SDK erforderlich):

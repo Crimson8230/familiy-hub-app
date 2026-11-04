@@ -458,3 +458,21 @@ Verbindung bis zum Flowstart erfolgreich. Beim Offline-Lauf mit
 zeigt weiterhin die leere Preview-App. Die zuvor vermutete Bedienung am Gerät
 ist damit nicht als Ursache belegt. Maestro-Hintergrundfenster-Freigabe angefragt;
 keine Kontoanlage/Neustart-/Duplikatabnahme, Netzwerkzustand wiederhergestellt.
+
+**Nutzerentscheidung 2026-11-04:** Nur noch ein abschließender ausdrücklich
+freigegebener Maestro-Lauf auf dem persönlichen Xiaomi-Gerät. Danach keine
+weiteren Versuche oder zusätzlichen Automatisierungsfreigaben auf diesem Gerät;
+Folgeprüfungen auf Emulator oder separatem Testgerät. Nach dem letzten Lauf
+Netzwerkzustand wiederherstellen und die ausschließlich dafür installierten
+Maestro-Testhelfer entfernen. Eine erneute Nutzung des persönlichen Geräts
+erfordert eine neue ausdrückliche Beauftragung.
+
+Abschließender einmaliger Lauf ausgeführt: Die Eingabe-/Startsteuerung funktioniert;
+zehn synthetische Konten wurden angelegt und in der Übersicht mit Schule beobachtet.
+Prozess beendet mit Exit 143 vor fertigem JUnit-/Kommandobericht; Ursache der
+Terminierung nicht nachgewiesen. Neustart-/Duplikatabnahme daher nicht bestätigt,
+T032 bleibt offen. Keine Wiederholung auf dem persönlichen Gerät. WLAN/mobile
+Daten auf ursprünglichen Zustand zurückgesetzt und geprüft; beide Maestro-Hilfsapps
+deinstalliert und Entfernung geprüft, drei erzeugte geräteweite Logcat-Dateien
+lokal entfernt. Offene Android-Prüfung künftig auf Emulator/separatem Testgerät;
+iOS-Preview bleibt ebenfalls offen.
