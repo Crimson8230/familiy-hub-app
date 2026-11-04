@@ -9,6 +9,7 @@ import { StorageError } from '../../src/storage/errors';
 import { childIdentity } from '../../src/storage/childIdentity';
 import type { NativeTestContext } from './suite';
 import { control, check } from './faultInjection';
+import { runCreationScenario } from './accountCreation.test';
 const options = { keychainService: 'familyhub.database' };
 const dependencies = (): StorageDependencies => ({
   files, keys: platformKeys, legacy, uuid: () => Crypto.randomUUID(),
@@ -26,6 +27,26 @@ async function reset(): Promise<void> {
 }
 export function nativeContext(resumeName: string | null, restart: (name: string) => Promise<never>): NativeTestContext {
   return {
+    async creationScenario(name) {
+      const resuming = resumeName === name;
+      if (!resuming) await reset();
+      const deps = dependencies();
+      const good = await initialize(deps);
+      const previous = await platformKeys.read();
+      try {
+        if (name === 'creation-missing-key') await SecureStore.deleteItemAsync(KEY_NAME, options);
+        if (name === 'creation-wrong-key') await SecureStore.setItemAsync(KEY_NAME, JSON.stringify({ ...previous, key: 'ff'.repeat(32) }), options);
+        const db = name === 'creation-unavailable-cipher'
+          ? { read: good.read, transaction: async () => { throw new StorageError('cipher-unavailable'); } }
+          : good;
+        await runCreationScenario(name, db, resuming, () => restart(name));
+      } finally {
+        if (previous && (name === 'creation-missing-key' || name === 'creation-wrong-key')) await SecureStore.setItemAsync(KEY_NAME, JSON.stringify(previous), options);
+      }
+      if (['creation-missing-key', 'creation-wrong-key', 'creation-unavailable-cipher'].includes(name)) {
+        check((await good.read(c => c.getFirstAsync<{ total: number }>('SELECT COUNT(*) AS total FROM school_accounts')))?.total === 0, name);
+      }
+    },
     async storageScenario(name) {
       const resuming = resumeName === name;
       if (!resuming) await reset();

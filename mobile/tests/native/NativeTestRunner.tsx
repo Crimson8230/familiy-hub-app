@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { bootstrapCases } from './storageBootstrap.test';
 import { legacyCases } from './legacyMigration.test';
+import { creationCases } from './accountCreation.test';
 import { nativeContext } from './nativeContext';
 import { control, report } from './faultInjection';
 import { StorageError } from '../../src/storage/errors';
@@ -22,7 +23,7 @@ export default function NativeTestRunner() {
         await report({ state: 'complete', passed: 0, failed: 1, skipped: 0 });
         setStatus('Intentional failure probe'); return;
       }
-      const availableCases = Platform.OS === 'android' ? [...bootstrapCases, ...legacyCases] : bootstrapCases;
+      const availableCases = [...bootstrapCases, ...(Platform.OS === 'android' ? legacyCases : []), ...creationCases];
       const selectedCase = previous.selectedCase;
       const cases = selectedCase ? availableCases.filter(current => current.name === selectedCase) : availableCases;
       if (cases.length === 0) throw new Error('Unknown test scenario');

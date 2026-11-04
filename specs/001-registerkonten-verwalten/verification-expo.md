@@ -461,3 +461,49 @@ Android-Nachweis unverändert: 7 Kotlin-, 34 TS-Tests, beide Fehlerproben und
 10 Prozessneustarts bestanden. T023/T060/T073 im Android-Umfang abgeschlossen;
 T087 offen. Frühere Einträge mit vollständiger Sperre beschreiben den historischen
 Stand vor dieser Nutzerentscheidung.
+
+## US1 implementation: T024–T031/T063/T074 (2026-11-04)
+
+- Implemented account validation, input identity fixtures, account repository,
+  local form hook, accessible scrollable creation screen, minimal summary list,
+  and Expo Router start/create routes. Required fields and school allowlist are
+  enforced; child identity uses the existing Kotlin-compatible trim/NFC/lower/NFC
+  function. Credential whitespace is preserved.
+- Creation checks identity inside the exclusive transaction before INSERT; the
+  database UNIQUE constraint remains in place. Duplicate identity and unrelated
+  save failures are distinguished. Success follows commit; after an uncertain
+  transaction result, the exact attempted row is read back without a retry INSERT.
+  Repository/unit and real native tests cover rollback and commit uncertainty.
+- The list projects only ID/child/school. Focus/foreground reloads discard stale
+  responses; load errors are distinct from an empty database. The form prevents
+  repeated submissions and clears/discards local credentials on success/leaving.
+- `npm run typecheck`: passed with Node 22.22.0.
+- `npm test -- --runInBand`: **48 tests passed across 6 suites**. Includes input
+  normalization/validation, unrelated SQL errors, conflicting commit readback,
+  form validation/school choice/password concealment, duplicate/save failures,
+  busy state, post-commit return, secret clearing and summary/error/retry behavior.
+- `npm run test:host`: **7 tests passed**. Host scope selection and expected TS
+  counts now include the new creation manifest group on both platforms.
+- On Android device `1b274288`, executed
+  `npm run test:native -- --platform android --device 1b274288 --installed`:
+  **44 passed, 0 failed, 0 skipped, 12 real process restarts**, TS intentional
+  failure probe verified, exit 0. No Gradle, prebuild, installation or Kotlin
+  rerun was performed. Evidence is diagnostic (`complete: false`), archived at
+  `mobile/tests/artifacts/native/2026-11-04/android-us1-creation-suite.json`.
+- The 10 new native cases cover ten accounts over freshly keyed connections,
+  concurrent normalized duplicates, rollback, uncertain commit readback, process
+  termination before/after commit, credential values over 65,535 UTF bytes, and
+  missing/wrong keys/unavailable cipher with no partial account retained.
+  Unavailable cipher is injected at the database boundary; successful cases use
+  the real installed SQLCipher and SecureStore implementations.
+- The Preview-profile Android JS/Hermes export also succeeded:
+  `FAMILYHUB_BUILD_PROFILE=preview node node_modules/expo/bin/cli export --platform
+  android --output-dir /tmp/familyhub-us1-preview-export` (1206 modules).
+  This validates product-route bundling, not an APK build or standalone offline
+  UI/device acceptance. Those remain part of T032 and later tasks.
+- T024–T031 and overlapping implementation tasks T063/T074 are marked complete.
+  T066/T079 remain open for the remaining story/native/Preview/platform evidence.
+  Per the user's deferred test sequence, T087 is now due before T032/T034. No
+  macOS/Xcode environment is available here; iOS and full US1 acceptance remain
+  unverified. No downstream story, deletion or removal gates were bypassed.
+- No before/after extension hooks are configured. `git diff --check` passed.

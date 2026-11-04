@@ -14,7 +14,7 @@ const installed = args.includes('--installed');
 const selectedCase = value('--case');
 const diagnostic = installed || Boolean(selectedCase);
 const manifest = JSON.parse(readFileSync(path.join(root, 'tests/native/scenarios.json'), 'utf8'));
-if (selectedCase && ![...manifest.storage, ...manifest.legacy].includes(selectedCase)) throw new Error('Unknown native scenario');
+if (selectedCase && ![...manifest.storage, ...manifest.legacy, ...manifest.creation].includes(selectedCase)) throw new Error('Unknown native scenario');
 if (selectedCase && !installed) throw new Error('--case requires --installed (diagnostic run)');
 const app = 'com.familyhub.app.nativetest';
 const port = Number(process.env.FAMILYHUB_METRO_PORT ?? 8089);
@@ -172,7 +172,7 @@ try {
   const directory = path.join(root, 'tests/artifacts/native'); mkdirSync(directory, { recursive: true });
   writeFileSync(path.join(directory, `${platform}${diagnostic ? '-diagnostic' : ''}-partial-summary.json`), JSON.stringify({ platform, device, profile: 'native-test', complete: false, diagnostic, selectedCase, groups, restarts, failureProbesVerified: !diagnostic, typescriptFailureProbeVerified: true, failedScenarioIndex: result.failed ? result.index : undefined, failureReason: result.failed && /^(storage-(inconsistent|key-unavailable|key-mismatch|cipher-unavailable|database|schema|legacy|duplicate)|test-operation)$/.test(result.reason ?? '') ? result.reason : undefined }, null, 2));
   if (result.failed) throw new Error(`Native TypeScript scenario ${result.index + 1} failed (${result.passed} passed)`);
-  const expectedTypeScript = selectedCase ? 1 : manifest.storage.length + (platform === 'android' ? manifest.legacy.length : 0);
+  const expectedTypeScript = selectedCase ? 1 : manifest.storage.length + manifest.creation.length + (platform === 'android' ? manifest.legacy.length : 0);
   if (diagnostic) validateGroup(groups[0], expectedTypeScript);
   else validateGroups(platform, groups, { typescript: expectedTypeScript, 'android-instrumentation': manifest.androidInstrumentationTests });
   writeFileSync(path.join(directory, `${platform}${diagnostic ? '-diagnostic' : ''}-summary.json`), JSON.stringify({ platform, device, profile: 'native-test', complete: !diagnostic, diagnostic, selectedCase, groups, restarts, failureProbesVerified: !diagnostic, typescriptFailureProbeVerified: true }, null, 2));
