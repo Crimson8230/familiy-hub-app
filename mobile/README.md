@@ -1,8 +1,10 @@
 # Family Hub mobile
 
 Expo SDK 58 / React Native 0.88 / TypeScript for Android and iOS.
-Current status: setup and secure-storage foundation implemented (T001–T022).
-Android foundation checkpoint T023 passed; account create/list/delete UI is pending.
+Current status: secure-storage foundation and initial account creation/list UI implemented
+(T001–T031, with iOS verification deferred).
+Android foundation checkpoint T023 passed; account creation and minimal list UI are
+implemented. Account deletion and full story/preview acceptance are pending.
 iOS foundation acceptance is deferred to T087 after T031 and before T032/T034;
 Android story implementation may continue. Full platform/release acceptance stays gated.
 As of 2026-11-04, the legacy read-only snapshot defect is fixed and all 34 Android
@@ -64,3 +66,17 @@ keystore through the `FAMILYHUB_TEST_*` variables named in the script. Never use
 signing credentials or real register data for fixture preparation.
 
 The active design and checks are under `../specs/001-registerkonten-verwalten/`.
+
+## Initial account creation (2026-11-04)
+
+The start route lists only ID/child/school summaries. Adding an account validates
+required fields and the school allowlist, preserves credential whitespace, and
+uses an exclusive encrypted transaction. Duplicate identities are rejected;
+uncertain commit results are read back before success is reported. Form inputs
+stay local and are cleared on save/cancel or discarded when leaving the screen.
+
+Typecheck and 48 unit/component tests pass. The installed Android native test app
+passes 44 TS scenarios (10 new creation scenarios), its failure probe and 12 real
+process restarts. This diagnostic does not replace the earlier full Android
+foundation acceptance or the outstanding iOS/standalone offline-preview checks.
+T087 is the next sequential gate before T032; no full US1 acceptance is claimed.

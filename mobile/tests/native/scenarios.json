@@ -1,5 +1,17 @@
 {
   "androidInstrumentationTests": 7,
+  "creation": [
+    "creation-ten-and-reopen",
+    "creation-concurrent-duplicates",
+    "creation-rollback",
+    "creation-ambiguous-commit",
+    "creation-before-commit",
+    "creation-after-commit",
+    "creation-long-credentials",
+    "creation-missing-key",
+    "creation-wrong-key",
+    "creation-unavailable-cipher"
+  ],
   "storage": [
     "fresh-marker-before-key",
     "matching-provisioning-key-reused",

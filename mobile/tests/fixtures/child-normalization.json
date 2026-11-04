@@ -1,0 +1,12 @@
+[
+  {"input":"Anna","display":"Anna","key":"anna"},
+  {"input":" anna ","display":"anna","key":"anna"},
+  {"input":"ANNA","display":"ANNA","key":"anna"},
+  {"input":"  ÄNNA  ","display":"ÄNNA","key":"änna"},
+  {"input":"I","display":"I","key":"i"},
+  {"input":"İ","display":"İ","key":"i̇"},
+  {"input":"\u001cAnna\u001f","display":"Anna","key":"anna"},
+  {"input":"\u00a0Änne\u2003","display":"Änne","key":"änne"},
+  {"input":"\u2028Lea\u2029","display":"Lea","key":"lea"},
+  {"input":"\ufeffAnna\ufeff","display":"\ufeffAnna\ufeff","key":"\ufeffanna\ufeff"}
+]
