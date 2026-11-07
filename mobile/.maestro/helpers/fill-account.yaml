@@ -8,7 +8,11 @@ appId: com.familyhub.app
 - tapOn:
     id: account-childName
 - inputText: ${CHILD}
-- hideKeyboard
+- assertVisible: ${CHILD}
+- runFlow:
+    file: dismiss-keyboard.yaml
+    env:
+      FIELD_LABEL: ^Kind$
 - tapOn:
     id: account-school-${SCHOOL}
 - scrollUntilVisible:
@@ -17,14 +21,22 @@ appId: com.familyhub.app
 - tapOn:
     id: account-username
 - inputText: synthetic-offline-user
-- hideKeyboard
+- assertVisible: synthetic-offline-user
+- runFlow:
+    file: dismiss-keyboard.yaml
+    env:
+      FIELD_LABEL: ^Benutzername$
 - scrollUntilVisible:
     element:
       id: account-password
 - tapOn:
     id: account-password
 - inputText: synthetic-offline-password
-- hideKeyboard
+- waitForAnimationToEnd
+- runFlow:
+    file: dismiss-keyboard.yaml
+    env:
+      FIELD_LABEL: ^Passwort$
 - scrollUntilVisible:
     element:
       id: account-save

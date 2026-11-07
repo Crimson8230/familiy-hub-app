@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Button, ScrollView, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import type { AccountDatabase } from './database';
 const StorageContext = createContext<AccountDatabase | null>(null);
 export function StorageProvider({ children }: { children: ReactNode }) {
@@ -14,14 +15,14 @@ export function StorageProvider({ children }: { children: ReactNode }) {
     }).catch(() => { if (active) setFailed(true); });
     return () => { active = false; };
   }, [attempt]);
-  if (failed) return <ScrollView contentContainerStyle={{ padding: 24, gap: 16 }}>
+  if (failed) return <SafeAreaView style={{ flex: 1 }}><ScrollView contentContainerStyle={{ padding: 24, gap: 16 }}>
     <Text accessibilityRole="alert">Gespeicherte Konten konnten nicht geöffnet werden. Deine Daten werden nicht zurückgesetzt.</Text>
     <Button title="Erneut versuchen" onPress={() => setAttempt(value => value + 1)} />
-  </ScrollView>;
-  if (!database) return <ScrollView contentContainerStyle={{ padding: 24, gap: 16 }}>
+  </ScrollView></SafeAreaView>;
+  if (!database) return <SafeAreaView style={{ flex: 1 }}><ScrollView contentContainerStyle={{ padding: 24, gap: 16 }}>
     <ActivityIndicator accessibilityLabel="Gespeicherte Konten werden geöffnet" />
     <Text>Gespeicherte Konten werden geöffnet …</Text>
-  </ScrollView>;
+  </ScrollView></SafeAreaView>;
   return <StorageContext.Provider value={database}>{children}</StorageContext.Provider>;
 }
 export function useAccountStorage(): AccountDatabase {

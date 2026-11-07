@@ -893,3 +893,85 @@ Stand vor dieser Nutzerentscheidung.
   and later sequential acceptance work were not advanced. Earlier failed attempts
   remain documented as history; they are not counted as passing. No full US1,
   feature, security, accessibility, performance or release acceptance is claimed.
+
+
+## iOS standalone offline Preview: T032 (2026-11-07)
+
+**Result: passed for the iOS T032 scope.** The existing Android Preview proof from
+2026-11-04 remains separate; Android was not rerun on this Mac. T032/T090 are now
+complete. T033 is the next sequential task; T034 and all later acceptance gates
+remain open. No full story, security, accessibility, performance or release
+approval is claimed.
+
+Sanitized evidence: [iOS Preview UI](evidence/2026-11-07-ios-preview-ui.json).
+
+- Device explicitly selected: iPhone 18 Pro Simulator, iOS 27.2, ARM64, UDID
+  `14C32067-CA45-4C2C-ADD8-BEF47ED9FE02`; Xcode 27.2 (27B52), Node 22.23.4,
+  Maestro 2.12.1. Product identifier `com.familyhub.app`, version 0.2.0, build 2.
+- Profile `preview`, Release, local Simulator signing. Embedded bundle and
+  `EXConstants.bundle/app.config` profile verified; known native test entry,
+  scenario and control markers absent from the bundle. Artifact hashes and
+  source/flow hashes are recorded in the evidence.
+- Full `create-account.yaml` passed: ten new names with prefix `Offline Nov07 C`,
+  both schools selected, no displayed synthetic credentials, 11 save actions
+  including the rejected normalized duplicate. Each of the three phases checked
+  all ten fixture names; two completed `stopApp` commands and three completed
+  launches establish the two intervening process restarts. JUnit: 1 test,
+  0 failures, 374.147 seconds.
+- Metro ports 8081/8089 were idle. Host Wi-Fi was off before/during/after Maestro,
+  an external probe failed (exit 6), and 83 periodic Wi-Fi checks passed. The
+  host restored Wi-Fi after completion; failure paths were also observed to
+  restore Wi-Fi. The Simulator's decorative Wi-Fi indicator was not used as
+  network evidence.
+- Existing synthetic accounts from incomplete attempts were retained using
+  explicit `REQUIRE_EMPTY=false` and a new prefix; no app data or Keychain reset.
+  Exact SQL total was not queried. The initial empty-state preflight passed.
+- Regression: typecheck; 48 tests in 6 unit/component suites; 13 host tests
+  (7 native orchestration + 6 Android Preview guards); Maestro syntax. Separate
+  iOS preflights passed for empty state, keyboard/input handling, password-offer
+  rejection and cancellation without saving. Existing T087 native evidence
+  remains separate; no new full native-test run is claimed.
+
+### Corrections and incomplete attempts
+
+The iOS Preview exposed navigation overlapping the first account content;
+`contentInsetAdjustmentBehavior=automatic` now adjusts the list/form. Storage
+loading/error screens use SafeAreaView. The form supports keyboard dismissal on
+drag. Maestro's iOS `hideKeyboard` swipes remained layout-dependent, so the shared
+helper taps static labels on iOS while retaining Android's hideKeyboard action;
+see [Maestro's documented workaround](https://docs.maestro.dev/reference/commands-available/hidekeyboard).
+Complete child/username values are checked before leaving inputs, after one
+incomplete name was observed. Optional iOS “Save Password” offers are declined
+with “Not Now”/“Später” rather than saving synthetic credentials externally.
+
+Four earlier incomplete runs are not counted as successful acceptance: keyboard
+dismissal, an obstructing password offer, another gesture failure, and an
+incomplete input. Their summaries and raw synthetic-only logs remain local.
+All ten fixture names, duplicate rejection and both restart checks remained required in the final run; the initial empty-state preflight was recorded separately before the data-preserving reruns.
+
+### Build environment and reproducibility
+
+The default Node 25 binary had a missing simdjson dependency; installed Node 22
+was selected without changing system Node. iCloud/FileProvider had offloaded
+node_modules and some generated files: reads stalled, Expo module scans timed
+out, and Finder metadata caused codesign rejection. Dependencies were restored
+from the unchanged npm lockfile, preserving the original placeholders under the
+ignored root `build/codex-cache-backups/` directory. A fresh local checkout of
+base `fb1b5f6` received the scoped changes and passed all host checks.
+
+The first build with signing disabled stopped at provisioning before creating
+a database. Normal local Simulator signing produced the expected Simulator
+entitlements and resumed the same provisioning marker to ready without reset.
+The verified build uses a fully local source checkout and DerivedData under
+`/private/tmp`, not CODE_SIGNING_ALLOWED=NO. Commands are in mobile/.maestro/README.md.
+
+Local build/test workspace:
+`/private/tmp/familyhub-ios-preview-workspace-20261106/mobile`; raw artifacts in
+`tests/artifacts/preview/ios/`, signed application under
+`/private/tmp/familyhub-ios-preview-local-derived-data/Build/Products/Release-iphonesimulator/FamilyHub.app`.
+A verified pack from the fresh clone was added to the original Git object store
+to make missing base objects readable; existing objects and refs were retained.
+
+Android SDK/ADB/emulator are absent on this Mac. T033's Android rerun needs an
+explicitly selected emulator in an equipped environment; no personal-phone
+automation was started. Subsequent tasks were not advanced past their gates.

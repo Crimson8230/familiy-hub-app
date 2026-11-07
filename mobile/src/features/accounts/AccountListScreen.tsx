@@ -22,7 +22,7 @@ export function AccountListScreen({ onAdd }: { onAdd: () => void }) {
     return () => { version.current++; listener.remove(); };
   }, [load]));
   return <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1 }}>
-    <ScrollView contentContainerStyle={{ padding: 24, gap: 20 }}>
+    <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{ padding: 24, gap: 20 }}>
     <Text accessibilityRole="header" style={{ fontSize: 24 }}>Schulkonten</Text>
     {failed ? <View><Text accessibilityRole="alert">Gespeicherte Konten konnten nicht geladen werden.</Text><Button title="Erneut versuchen" onPress={load} /></View>
       : accounts === null ? <ActivityIndicator accessibilityLabel="Konten werden geladen" />

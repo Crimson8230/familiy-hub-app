@@ -8,8 +8,10 @@ implemented. Account deletion and full story/preview acceptance are pending.
 iOS foundation check T087 passed on an iOS 27.2 Simulator: 31 native scenarios,
 7 process restarts and the intentional failure probe. Android standalone Preview
 creation/restarts/duplicate rejection now pass (3 UI phases, 2 real process restarts).
-T032 remains open for its iOS Preview counterpart;
-full story/platform/release acceptance stays gated by the remaining tasks.
+The iOS standalone offline Preview now passes too (2026-11-07): ten new accounts,
+two real process restarts and duplicate rejection. T032 is complete using the
+existing Android proof; Android was not rerun on this Mac. T033 is next, and full
+story/platform/release acceptance stays gated by the remaining tasks.
 As of 2026-11-04, the legacy read-only snapshot defect is fixed and all 34 Android
 TS scenarios and all 7 Kotlin tests pass together in the complete Android run,
 including both failure probes and 10 process restarts.
@@ -115,3 +117,25 @@ passes 44 TS scenarios (10 new creation scenarios), its failure probe and 12 rea
 process restarts. This diagnostic does not replace the earlier full Android
 foundation acceptance or the outstanding iOS/standalone offline-preview checks.
 T087 now passes on iOS; T032 is next. No full US1 acceptance is claimed.
+
+
+## iOS standalone Preview (2026-11-07)
+
+The signed Release Preview passed on the explicitly selected iPhone 18 Pro / iOS
+27.2 Simulator with embedded JS, Metro stopped and host Wi-Fi disabled throughout
+the run (83 checks). Ten new synthetic accounts survived two process restarts;
+the normalized duplicate was rejected. Existing synthetic accounts were retained
+and host Wi-Fi was restored. See the verification report and sanitized evidence
+under `../specs/001-registerkonten-verwalten/`.
+
+iOS content insets keep the account screens below navigation; bootstrap states
+use safe areas. The form dismisses the keyboard on drag, and the shared Maestro
+helper uses static-label taps on iOS plus complete visible input checks to avoid
+gesture/input races. Optional iOS password-manager offers are declined.
+Typecheck, 48 unit/component tests, 13 host tests and Maestro syntax pass.
+
+Keep source and DerivedData fully local when building: iCloud/FileProvider
+placeholder reads and Finder metadata blocked this checkout's first builds. The
+verified Preview was built from a local `/tmp` copy with local Simulator signing;
+see `.maestro/README.md` for commands. This is not full story/release acceptance.
+T033/T034 remain open; no Android SDK/ADB/emulator is installed on this Mac.

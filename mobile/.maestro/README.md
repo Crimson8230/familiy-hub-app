@@ -83,6 +83,28 @@ Neurendern oder bloßes Wechseln der Ansicht genügt nicht. Nur drei tatsächlic
 bestandene Phasen und zwei nachgewiesene Neustarts ergeben den vollständigen
 Android-UI-Ablauf. Vorhandene Konten bleiben erhalten; keine automatischen Resets.
 
+### iOS-Tastatur und Passwortangebot
+
+Der gemeinsame Eingabehelfer wartet nach Kind und Benutzername auf den
+vollständigen sichtbaren Feldwert. Unter iOS tippt er anschließend auf das
+statische Feldlabel, um die Tastatur zu schließen; Android verwendet weiterhin
+`hideKeyboard`. Das vermeidet die von Layout und Tastatur abhängigen iOS-Wischgesten
+von [Maestro hideKeyboard](https://docs.maestro.dev/reference/commands-available/hidekeyboard).
+Das Formular unterstützt außerdem Ausblenden beim Ziehen.
+
+Ein optionaler iOS-Systemdialog „Passwort sichern?“ wird über
+`helpers/dismiss-password-prompt.yaml` mit „Später“ abgelehnt. Synthetische
+Zugangsdaten werden dabei nicht im Passwortmanager gespeichert. Der Helfer wird
+vor der ersten Anlage, nach Speichern und nach Abbrechen des Duplikatversuchs
+aufgerufen; er verändert keine Systemeinstellungen.
+
+Bei Wiederholungen auf demselben isolierten iOS-Simulator bestehende synthetische
+Konten erhalten und einen noch nicht verwendeten Präfix ausdrücklich wählen:
+`-e REQUIRE_EMPTY=false -e CHILD_PREFIX="Offline Folge Neu"`.
+Die Standardprüfung auf einen leeren Bestand bleibt aktiv. Jeder vollständige
+Lauf muss zehn neue Namen und die beiden Neustarts mit demselben Präfix prüfen;
+ein fehlgeschlagener Vorlauf zählt nicht als Abnahme.
+
 Die Dateien werden auch von `create-account.yaml` eingebunden. So prüfen Host-
 und direkter Maestro-Ablauf dieselben UI-Schritte. Ohne separat ausdrückliche
 Freigabe bleibt die Regel bestehen, ausschließlich Emulatoren zu verwenden.
@@ -122,12 +144,38 @@ adb -s SERIAL install android/app/build/outputs/apk/release/app-release.apk
 ```
 
 Die Architektur an das Gerät anpassen. Auf macOS einen iOS-Release-Build des
-Profils `preview` für den ausgewählten Simulator erzeugen/installieren:
+Profils `preview` für den ausdrücklich ausgewählten Simulator erzeugen/installieren.
+Node 22 verwenden, Xcode auswählen und die Simulator-UDID aus `simctl list devices`
+eintragen. Das folgende Beispiel baut für einen ARM64-Simulator auf Apple Silicon:
 
 ```bash
-FAMILYHUB_BUILD_PROFILE=preview npx expo prebuild --platform ios --no-install
-FAMILYHUB_BUILD_PROFILE=preview npx expo run:ios --configuration Release --device UDID --no-bundler
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+export FAMILYHUB_BUILD_PROFILE=preview
+export IOS_SIMULATOR_UDID=UDID
+export IOS_PREVIEW_DERIVED_DATA=/private/tmp/familyhub-ios-preview-derived-data
+npx expo prebuild --platform ios --no-install
+(cd ios && pod install)
+xcodebuild -workspace ios/FamilyHub.xcworkspace -scheme FamilyHub \
+  -configuration Release -sdk iphonesimulator \
+  -destination "id=$IOS_SIMULATOR_UDID" ONLY_ACTIVE_ARCH=YES \
+  -derivedDataPath "$IOS_PREVIEW_DERIVED_DATA" -jobs 4 CODE_SIGN_IDENTITY=- build
+xcrun simctl install "$IOS_SIMULATOR_UDID" \
+  "$IOS_PREVIEW_DERIVED_DATA/Build/Products/Release-iphonesimulator/FamilyHub.app"
+xcrun simctl launch "$IOS_SIMULATOR_UDID" com.familyhub.app
 ```
+
+Die normale lokale Simulator-Signierung beibehalten; nicht mit
+`CODE_SIGNING_ALLOWED=NO` bauen. Die Simulator-Entitlements sind für den Zugriff
+auf den sicheren Speicher relevant. DerivedData außerhalb synchronisierter
+Ordner ablegen: iCloud/FileProvider kann `.framework`- und `.bundle`-Verzeichnissen
+Finder-Metadaten hinzufügen, die `codesign` zurückweist. Ein erfolgreicher Build
+allein ersetzt den anschließenden Start- und Offline-Nachweis nicht.
+
+Sind lokale Abhängigkeiten als `dataless` ausgelagert und hängen Werkzeuge beim
+Lesen, die vorhandenen Dateien erhalten und mit Node 22 `npm ci` aus dem Lockfile
+in einem vollständig lokal verfügbaren Arbeitsverzeichnis ausführen. Sicherungen
+alter Abhängigkeiten außerhalb von `mobile/` aufbewahren, damit Autolinking und
+Dateisuchen sie nicht als weitere Projektquellen erfassen.
 
 Dann Metro und Netzwerk wie oben abschalten, bevor der eigentliche Test startet.
 Nach Installation und Offline-Vorbereitung pro Plattform:

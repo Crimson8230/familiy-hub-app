@@ -14,7 +14,7 @@ export function CreateAccountScreen({ onSaved, onCancel }: { onSaved: () => void
   </View>;
   return <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1 }}>
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 24, gap: 20 }}>
+    <ScrollView contentInsetAdjustmentBehavior="automatic" keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={{ padding: 24, gap: 20 }}>
       <Text accessibilityRole="header" style={{ fontSize: 24 }}>Schulkonto hinzufügen</Text>
       <Text>Das Konto wird auf diesem Gerät gespeichert. Die Anmeldung bei der Schule wird hier noch nicht geprüft.</Text>
       {field('childName', 'Kind')}

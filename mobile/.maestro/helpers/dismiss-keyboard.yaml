@@ -1,0 +1,15 @@
+# iOS gestures can miss a focused input; a static label tap dismisses it reliably.
+appId: com.familyhub.app
+---
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          text: ${FIELD_LABEL}
+          index: 0

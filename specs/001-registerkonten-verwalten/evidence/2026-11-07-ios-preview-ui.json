@@ -1,0 +1,95 @@
+{
+  "date": "2026-11-07",
+  "task": "T032",
+  "platform": "ios",
+  "completeFeatureAcceptance": false,
+  "sourceBaseCommit": "fb1b5f6ff16e6a65d3d3b7677974f50fdfbaa32d",
+  "build": {
+    "applicationId": "com.familyhub.app",
+    "version": "0.2.0",
+    "build": "2",
+    "profile": "preview",
+    "executableSHA256": "74ebd0e5c119d29164ffc2cd6f0f236ce861c641498ef8ca040c60ddcdd1ead8",
+    "bundleSHA256": "05c4047c3de213c13d012c9a738e92b3bae3b4ff8faabd509970b28e061731e9",
+    "bundleBytes": 2668169,
+    "testMarkersAbsent": true
+  },
+  "device": {
+    "udid": "14C32067-CA45-4C2C-ADD8-BEF47ED9FE02",
+    "name": "iPhone 18 Pro",
+    "os": "iOS 27.2",
+    "architecture": "arm64"
+  },
+  "maestroVersion": "2.12.1",
+  "nodeVersion": "22.23.4",
+  "xcode": "27.2 (27B52)",
+  "fixturePrefix": "Offline Nov07 C",
+  "existingAccountsReset": false,
+  "requiresEmptyInventory": false,
+  "exactSqlCountQueried": false,
+  "flowPassed": true,
+  "junitTests": 1,
+  "junitFailures": 0,
+  "junitSeconds": 374.147,
+  "phases": [
+    {
+      "name": "create-ten-accounts",
+      "passed": true,
+      "fixtureNamesVerified": 10
+    },
+    {
+      "name": "check-duplicate",
+      "passed": true,
+      "fixtureNamesVerified": 10
+    },
+    {
+      "name": "check-final-state",
+      "passed": true,
+      "fixtureNamesVerified": 10
+    }
+  ],
+  "saveButtonActions": 11,
+  "processStopsCompleted": 2,
+  "launchesCompleted": 3,
+  "processRestarts": 2,
+  "offline": {
+    "wifiBefore": "On",
+    "wifiDuring": "Off",
+    "wifiChecks": 83,
+    "externalProbeExit": 6,
+    "metroPortsIdle": [
+      8081,
+      8089
+    ],
+    "wifiAfterRestored": true
+  },
+  "optionalPasswordOffersDeclined": 11,
+  "regression": {
+    "typecheckPassed": true,
+    "unitComponentTestsPassed": 48,
+    "hostTestsPassed": 13,
+    "maestroSyntaxPassed": true,
+    "previewEmptyStatePassed": true,
+    "keyboardAndInputPreflightPassed": true
+  },
+  "sourceSHA256": {
+    "mobile/.maestro/create-account.yaml": "74986f29371edc9101abfbeb0bd4090f1c82ad6cf629a57c79f2cc73fdaa77d9",
+    "mobile/.maestro/helpers/assert-accounts.yaml": "e011c4dcc3cd36c34c901353d8f5943f124fd6ed49bfc605509713d4d215a8c3",
+    "mobile/.maestro/helpers/check-duplicate.yaml": "bef23574f14df94acab3047f69d92a648b3c6e44552963de1c8be1e387b535a7",
+    "mobile/.maestro/helpers/check-final-state.yaml": "4f48728cd79754ad9ac27cb4a54a475728b87f25e17c746ea59177298a05a36c",
+    "mobile/.maestro/helpers/create-ten-accounts.yaml": "7b074e9ee50ed5ab589f8e4bfea9cd930802c4449f5553958ecda27743413160",
+    "mobile/.maestro/helpers/dismiss-keyboard.yaml": "0d71be88aadf3ac00525cb66fd20b1bbbaf15c7d67232214081c5161dd5079ea",
+    "mobile/.maestro/helpers/dismiss-password-prompt.yaml": "b89e944f4887de63ef21e39a59fb621093cde044293677a3bd58e8d0d20b414b",
+    "mobile/.maestro/helpers/fill-account.yaml": "b4cdadb614ffac015168c21e7d95f7035396ece72c4f869535141fac46b7d2c7",
+    "mobile/src/features/accounts/AccountListScreen.tsx": "591714126fbfedcbb237770e925ff7c6a443c8e3f8a2e3bcfcba50e5009bb7b0",
+    "mobile/src/features/accounts/CreateAccountScreen.tsx": "5607dc8122219ebb7a057eb60f6813943d92b8a7aab6f0a2603af6fb952f55da",
+    "mobile/src/storage/StorageProvider.tsx": "8969a65067a16640b59875f1a934af159730510d6e87ae677bed6ea225d5b6eb"
+  },
+  "limitations": [
+    "Prior Android Preview evidence remains the Android T032 scope; Android was not rerun on this Mac.",
+    "T033/T034 and subsequent story, security, accessibility, performance, user and release acceptance remain open.",
+    "No new full native-test run; existing T087 evidence is separate from this Preview run.",
+    "Build used a local /tmp checkout and DerivedData after iCloud/FileProvider read and signing failures.",
+    "Previous incomplete runs are not accepted as successful tests; their synthetic accounts were preserved."
+  ]
+}
